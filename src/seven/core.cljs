@@ -1,19 +1,10 @@
 (ns seven.core
   (:require
-   [reagent.core :as r]
-   [reagent.dom :as d]))
-
-;; -------------------------
-;; Views
-
-(defn home-page []
-  [:div [:h2 "Welcome to Reagent"]])
-
-;; -------------------------
-;; Initialize app
+   [reagent.dom :as d]
+   [seven.root :as s]))
 
 (defn mount-root []
-  (d/render [home-page] (.getElementById js/document "app")))
+  (d/render [s/root] (.getElementById js/document "app")))
 
 (defn init! []
   (mount-root))
