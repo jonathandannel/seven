@@ -1,10 +1,12 @@
 (ns seven.core
   (:require
    [reagent.dom :as d]
-   [seven.root :as s]))
+   [seven.root :refer [root]]))
 
+;; Mount and render our root component to #app div
 (defn mount-root []
-  (d/render [s/root] (.getElementById js/document "app")))
+  (d/render [root] (.getElementById js/document "app")))
 
+;; Runs on start
 (defn init! []
   (mount-root))

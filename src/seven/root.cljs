@@ -1,8 +1,7 @@
 (ns seven.root
-  (:require [seven.components :as c]))
+  ;; Import components
+  (:require [seven.components.counter :as counter]))
 
+;; Root contains all our components 
 (defn root []
-  [:div
-   [:h1 "seven.root components:"]
-   [c/counter]
-   [c/temperature]])
+  [counter/main])
