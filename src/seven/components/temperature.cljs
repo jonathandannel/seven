@@ -4,16 +4,23 @@
 
 (enable-console-print!)
 
-(defonce state (r/atom {:c nil :f nil}))
+(def default-state
+  {:c nil :f nil})
 
-(add-watch state :watcher
-           (fn [_key _atom old-state new-state]
-             (print old-state)
-             (print new-state)))
+(defonce state (r/atom default-state))
+
+(defn to-f [n]
+  (+ (* n (/ 9 5)) 32))
+
+(defn to-c [n]
+  (* (- n 32) (/ 5 9)))
 
 (defn handle-change [e]
-  (let [_name (-> e .-target .-name) _val (-> e .-target .-value)]
-    (swap! state assoc-in [(keyword _name)] _val)))
+  (let [k (-> e .-target .-name) v (-> e .-target .-value)]
+    (cond
+      (= v "") (reset! state default-state)
+      (= k "f") (reset! state {:f v :c (to-c v)})
+      (= k "c") (reset! state {:c v :f (to-f v)}))))
 
 (defn main []
   [ui/component-wrapper "Temperature converter"
