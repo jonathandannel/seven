@@ -1,11 +1,11 @@
 (ns seven.components.counter
   (:require [reagent.core :as r]
-            [seven.components.ui :as ui]))
+            [seven.components.ui :refer [component-wrapper]]))
 
 (defn main []
   (let [total (r/atom 0)]
     (fn []
-      [ui/component-wrapper "Counter"
+      [component-wrapper "Counter"
        [:div {:class "level"}
         [:h4 {:class "level-left"} "Click count: " @total]
         [:button {:class "button is-danger level-right"

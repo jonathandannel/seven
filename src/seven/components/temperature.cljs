@@ -1,8 +1,6 @@
 (ns seven.components.temperature
   (:require [reagent.core :as r]
-            [seven.components.ui :as ui]))
-
-(enable-console-print!)
+            [seven.components.ui :refer [component-wrapper]]))
 
 (def default-state
   {:c nil :f nil})
@@ -23,7 +21,7 @@
       (= k "c") (reset! state {:c v :f (to-f v)}))))
 
 (defn main []
-  [ui/component-wrapper "Temperature converter"
+  [component-wrapper "Temperature converter"
    [:div
     [:h4 "Celsius"]
     [:input {:type "number" :name "c" :value (:c @state) :on-change handle-change :placeholder "celsius"}]
