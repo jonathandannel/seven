@@ -11,12 +11,15 @@
   (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
+  ; Input name is either "f" or "c", set that key's value and convert the other
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
     (cond
+      ; Nil state on empty input, show placeholder
       (= v "") (reset! state {:f nil :c nil})
       (= k "f") (reset! state {:f v :c (to-c v)})
       (= k "c") (reset! state {:c v :f (to-f v)}))))
 
+; Easily replace input value without needing to delete/backspace
 (defn select-all [e]
   (.select (.-target e)))
 
