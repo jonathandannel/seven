@@ -7,7 +7,7 @@
     (fn []
       [component-wrapper "Counter"
        [:div {:class "level"}
-        [:h4 {:class "level-left"} "Click count: " @total]
+        [:span {:class "level-left is-size-4"} "Click count: " @total]
         [:button {:class "button is-danger level-right"
                   :on-click #(swap! total inc)}
-         "Increment counter"]]])))
+         "Click to increment"]]])))

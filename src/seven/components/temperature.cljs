@@ -11,10 +11,11 @@
   (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
-  ; Input name is either "f" or "c", set that key's value and convert the other
+  ; Input name is either "f" or "c" 
+  ; Set that state map key's value and convert the other
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
     (cond
-      ; Nil state on empty input, show placeholder
+      ; Nil state on empty input value, show placeholder
       (= v "") (reset! state {:f nil :c nil})
       (= k "f") (reset! state {:f v :c (to-c v)})
       (= k "c") (reset! state {:c v :f (to-f v)}))))
@@ -24,10 +25,20 @@
   (.select (.-target e)))
 
 (defn temp-input [t]
-  [:input {:type "number" :name t :value ((keyword t) @state) :on-focus select-all :on-change handle-change :placeholder t}])
+  [:input {:type "number"
+           :class "input is-primary"
+           :name t
+           :placeholder (if (= t "f") "Fahrenheit" "Celsius")
+           :value ((keyword t) @state)
+           :on-focus select-all
+           :on-change handle-change}])
 
 (defn main []
   [component-wrapper "Temperature converter"
-   [:div
-    [temp-input "c"]
-    [temp-input "f"]]])
+   [:div {:class "columns"}
+    [:div {:class "column is-half"}
+     [:h2 "Celsius"]
+     [temp-input "c"]]
+    [:div {:class "column is-half"}
+     [:h2 "Fahrenheit"]
+     [temp-input "f"]]]])
