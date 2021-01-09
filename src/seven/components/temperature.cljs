@@ -5,10 +5,10 @@
 (defonce state (r/atom {:c 0 :f 32}))
 
 (defn to-f [n]
-  (+ (* n (/ 9 5)) 32))
+  (Math.round (+ (* n (/ 9 5)) 32)))
 
 (defn to-c [n]
-  (* (- n 32) (/ 5 9)))
+  (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
