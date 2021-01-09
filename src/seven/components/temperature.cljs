@@ -2,10 +2,7 @@
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]))
 
-(def default-state
-  {:c nil :f nil})
-
-(defonce state (r/atom default-state))
+(defonce state (r/atom {:c 0 :f 32}))
 
 (defn to-f [n]
   (+ (* n (/ 9 5)) 32))
@@ -16,14 +13,18 @@
 (defn handle-change [e]
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
     (cond
-      (= v "") (reset! state default-state)
+      (= v "") (reset! state {:f nil :c nil})
       (= k "f") (reset! state {:f v :c (to-c v)})
       (= k "c") (reset! state {:c v :f (to-f v)}))))
+
+(defn select-all [e]
+  (.select (.-target e)))
+
+(defn temp-input [t]
+  [:input {:type "number" :name t :value ((keyword t) @state) :on-focus select-all :on-change handle-change :placeholder t}])
 
 (defn main []
   [component-wrapper "Temperature converter"
    [:div
-    [:h4 "Celsius"]
-    [:input {:type "number" :name "c" :value (:c @state) :on-change handle-change :placeholder "celsius"}]
-    [:h4 "Fahrenheit"]
-    [:input {:type "number" :name "f" :value (:f @state) :on-change handle-change :placeholder "fahrenheit"}]]])
+    [temp-input "c"]
+    [temp-input "f"]]])
