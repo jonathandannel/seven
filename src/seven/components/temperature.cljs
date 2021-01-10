@@ -25,20 +25,21 @@
   (.select (.-target e)))
 
 (defn temp-input [t]
-  [:input {:type "number"
-           :class "input is-primary"
-           :name t
-           :placeholder (if (= t "f") "Fahrenheit" "Celsius")
-           :value ((keyword t) @state)
-           :on-focus select-all
-           :on-change handle-change}])
+  [:div {:class "field"}
+   [:label {:class "label"} (if (= t "f") "Fahrenheit" "Celsius")]
+   [:div {:class "control"}
+    [:input {:type "number"
+             :class "input is-primary"
+             :name t
+             :placeholder (str "°" t)
+             :value ((keyword t) @state)
+             :on-focus select-all
+             :on-change handle-change}]]])
 
 (defn main []
   [component-wrapper "Temperature converter"
    [:div {:class "columns"}
     [:div {:class "column is-half"}
-     [:h2 "Celsius"]
      [temp-input "c"]]
     [:div {:class "column is-half"}
-     [:h2 "Fahrenheit"]
      [temp-input "f"]]]])

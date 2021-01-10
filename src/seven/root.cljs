@@ -1,6 +1,7 @@
 (ns seven.root
   ;; Import components
   (:require [seven.components.counter :as counter]
+            [seven.components.flight :as flight]
             [seven.components.temperature :as temperature]))
 
 ;; Root contains all our components 
@@ -8,4 +9,6 @@
   [:div {:class "content"}
    [counter/main]
    [:div {:class "block"}]
-   [temperature/main]])
+   [temperature/main]
+   [:div {:class "block"}]
+   [flight/main]])
