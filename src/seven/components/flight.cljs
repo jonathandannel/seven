@@ -5,25 +5,39 @@
 
 (def opts {:1 "One way flight" :2 "Round trip flight"})
 
-(defonce state (r/atom {:active-option 1
-                        :depart-date {:value "" :errors #{}}
-                        :return-date {:value "" :errors #{}}}))
+; State 
+(defonce state (r/atom
+                {:active-option 1
+                 :depart-date {:value ""
+                               :errors {:format false :letters false}}
+                 :return-date {:value ""
+                               :errors {:format false :letters false :invalid false}}}))
 
-(defn add-error [k err]
-  (swap! state update-in [(keyword k) :errors] conj err))
+; Pointers to date vals, watch them for errors as they're updated
+(def depart-cursor (r/cursor state [:depart-date :value]))
+(def return-cursor (r/cursor state [:return-date :value]))
 
-(def depart-cursor (r/cursor state [:depart-date]))
-(def return-cursor (r/cursor state [:return-date]))
+(defn update-error [k err bool]
+  (swap! state assoc-in [(keyword k) :errors (keyword err)] bool))
+
+(defn check-errors [field value]
+  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false))
+  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false))
+  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false)))
 
 (add-watch depart-cursor :depart-watcher
            (fn [k a o n]
-             (if (< (count (helpers/parse-date (n :value))) 8)
-               (add-error :depart-date "Date must be MM-DD-YYYY"))
-             (if (re-find #"[a-zA-Z]" (n :value))
-               (add-error :depart-date "Only numbers and slashes allowed"))))
+             (check-errors :depart-date n)))
+             ;(if (< (count (helpers/parse-date n)) 8)
+               ;(update-error :depart-date :format true)
+               ;(update-error :depart-date :format false))
+             ;(if (re-find #"[a-zA-Z]" n)
+               ;(update-error :depart-date :letters true)
+               ;(update-error :depart-date :letters false))))
 
 (add-watch state :state-watcher #(-> %4 print))
 
+; Handlers
 (defn handle-select [e]
   (let [v (-> e .-target .-value)]
     (swap! state assoc :active-option v)))
@@ -31,12 +45,10 @@
 (defn handle-date-change [e]
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
     (cond
-      (= k "depart") (swap! depart-cursor assoc :value v)
-      (= k "return") (swap! return-cursor assoc :value v))))
+      (= k "depart") (reset! depart-cursor v)
+      (= k "return") (reset! return-cursor v))))
 
-(defn get-now-date []
-  (java.util.Date.))
-
+; Component
 (defn main []
   [component-wrapper "Flight booker"
    [:div {:class "content"}
