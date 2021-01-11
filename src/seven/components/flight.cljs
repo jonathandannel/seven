@@ -5,7 +5,15 @@
 
 (def opts {:1 "One way flight" :2 "Round trip flight"})
 
-(defonce state (r/atom {:active-option 1 :errors [2 5] :depart-date "" :return-date ""}))
+(defonce state (r/atom {:active-option 1 :errors #{} :depart-date "" :return-date ""}))
+
+(def depart-cursor (r/cursor state [:depart-date]))
+
+(add-watch depart-cursor :depart-watcher
+           (fn [k a o n]
+             (print k a o n)))
+
+(add-watch state :state-watcher #(-> %4 print))
 
 (defn handle-select [e]
   (let [v (-> e .-target .-value)]
@@ -13,26 +21,18 @@
 
 (defn handle-date-change [e]
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
-    (swap! state assoc (keyword k)  v)))
+    (swap! state assoc (keyword k)  v)
+    @depart-cursor))
 
-(defn parse-date [v] 
-    (let [dmy (s/split v #"/")]
-      
-      
-      
-      ))
-    
+(defn parse-date [v]
+  (let [dmy (s/split v #"/")]
+    (s/join dmy)))
 
-(defn 
+(defn get-now-date []
+  (java.util.Date.))
 
-;4th argument of callback is new value
-(add-watch state :validator
-  (fn [_ _ _ a] 
-    (print a)))
-  
-
-
-
+(defn add-error [err]
+  (swap! state update :errors conj err))
 
 (defn main []
   [component-wrapper "Flight booker"

@@ -7,8 +7,8 @@
 ;; Root contains all our components 
 (defn root []
   [:div {:class "content"}
-   [counter/main]
-   [:div {:class "block"}]
-   [temperature/main]
-   [:div {:class "block"}]
+   ;[counter/main]
+   ;[:div {:class "block"}]
+   ;[temperature/main]
+   ;[:div {:class "block"}]
    [flight/main]])
