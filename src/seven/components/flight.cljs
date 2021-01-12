@@ -5,7 +5,6 @@
 
 (def opts {:1 "One way flight" :2 "Round trip flight"})
 
-; State 
 (defonce state (r/atom
                 {:active-option 1
                  :depart-date {:value ""
@@ -20,20 +19,17 @@
 (defn update-error [k err bool]
   (swap! state assoc-in [(keyword k) :errors (keyword err)] bool))
 
+; Set error fields true or false on input state change
 (defn check-errors [field value]
-  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false))
-  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false))
-  (if (helpers/bad-format? value) (update-error field :format true) (update-error field :format false)))
+  (update-error field :format (helpers/bad-format? value)))
 
 (add-watch depart-cursor :depart-watcher
            (fn [k a o n]
              (check-errors :depart-date n)))
-             ;(if (< (count (helpers/parse-date n)) 8)
-               ;(update-error :depart-date :format true)
-               ;(update-error :depart-date :format false))
-             ;(if (re-find #"[a-zA-Z]" n)
-               ;(update-error :depart-date :letters true)
-               ;(update-error :depart-date :letters false))))
+
+(add-watch return-cursor :depart-watcher
+           (fn [k a o n]
+             (check-errors :depart-date n)))
 
 (add-watch state :state-watcher #(-> %4 print))
 
