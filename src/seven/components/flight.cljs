@@ -39,6 +39,9 @@
 (add-watch depart-cursor :depart-watcher #(check-errors :depart-date %4))
 (add-watch return-cursor :return-watcher #(check-errors :return-date %4))
 
+(defn field-has-errors? [field]
+  (contains? (set (vals (-> @state (keyword field) :errors))) true))
+
 ; Input handlers
 (defn handle-select [e]
   (let [v (-> e .-target .-value)]
@@ -63,14 +66,41 @@
     [:div {:class "field"}
      [:label {:class "label"} "Depart"]
      [:div {:class "control"}
-      (and (-> @state :depart-date :errors :format) [:p {:class "help is-danger"} "Date must be in MM/DD/YYYY format"])
-      (and (-> @state :depart-date :errors :chars) [:p {:class "help is-danger"} "Date may only contain numbers and slashes"])
-      (and (-> @state :depart-date :errors :invalid) [:p {:class "help is-danger"} "Depart date must be in the future"])
-      [:input {:class "input" :value (-> @state :depart-date :value) :on-change handle-date-change :name "depart" :type "text" :placeholder "ex: 02/31/2021"}]]]
+      ; TODO: Refactor this, be DRY.
+      (and (-> @state :depart-date :errors :format)
+           [:p {:class "help is-danger"} "Date must be in MM/DD/YYYY format"])
+      (and (-> @state :depart-date :errors :chars)
+           [:p {:class "help is-danger"} "Date may only contain numbers and slashes"])
+      (and (-> @state :depart-date :errors :invalid)
+           [:p {:class "help is-danger"} "Depart date must be in the future"])
+      [:input {:class (str "input" (if (contains? (set (vals (-> @state :depart-date :errors))) true) " is-danger"))
+               :value (-> @state :depart-date :value)
+               :on-change handle-date-change
+               :name "depart"
+               :type "text" :placeholder "ex: 02/31/2021"}]]]
     [:div {:class "field"}
      [:label {:class "label"} "Return"]
      [:div {:class "control"}
-      (and (-> @state :return-date :errors :format) [:p {:class "help is-danger"} "Date must be in MM/DD/YYYY format"])
-      (and (-> @state :return-date :errors :chars) [:p {:class "help is-danger"} "Date may only contain numbers and slashes"])
-      (and (-> @state :return-date :errors :invalid) [:p {:class "help is-danger"} "Return date must be after depart date"])
-      [:input {:class "input" :value (-> @state :return-date :value) :on-change handle-date-change :name "return" :disabled (= (@state :active-option) 1) :type "text" :placeholder "ex: 03/08/2021"}]]]]])
+      ; TODO: Refactor this, be DRY.
+      (and (-> @state :return-date :errors :format)
+           [:p {:class "help is-danger"} "Date must be in MM/DD/YYYY format"])
+      (and (-> @state :return-date :errors :chars)
+           [:p {:class "help is-danger"} "Date may only contain numbers and slashes"])
+      (and (-> @state :return-date :errors :invalid)
+           [:p {:class "help is-danger"} "Return date must be after depart date"])
+      [:input {:class (str "input" (if (contains? (set (vals (-> @state :return-date :errors))) true) " is-danger"))
+               :value (-> @state :return-date :value)
+               :on-change handle-date-change
+               :name "return"
+               :disabled (= (@state :active-option) 1)
+               :type "text" :placeholder "ex: 03/08/2021"}]]]
+    [:div {:class "block"}]
+    [:div {:class "field"}
+     [:div {:class "control"}
+      [:button {:class "button is-primary"
+                :on-click #(js/alert "Thank you for booking with us. A confirmation email will be sent to you shortly.")
+                :disabled
+                (or (= "" @depart-cursor) (and (= "" @return-cursor) (= @state :active-option 2))
+                    (contains? (set (vals (-> @state :depart-date :errors))) true)
+                    (contains? (set (vals (-> @state :return-date :errors))) true))}
+       "Book flight"]]]]])
