@@ -8,9 +8,9 @@
 (defonce state (r/atom
                 {:active-option 1
                  :depart-date {:value ""
-                               :errors {:format false :letters false}}
+                               :errors {:format false :chars false :invalid false}}
                  :return-date {:value ""
-                               :errors {:format false :letters false :invalid false}}}))
+                               :errors {:format false :chars false :invalid false}}}))
 
 ; Pointers to date vals, watch them for errors as they're updated
 (def depart-cursor (r/cursor state [:depart-date :value]))
@@ -21,17 +21,19 @@
 
 ; Set error fields true or false on input state change
 (defn check-errors [field value]
+  (if (= field :depart-date) (helpers/bad-start-date? value) (helpers/bad-return-date? @depart-cursor value))
+  (update-error field :chars (helpers/bad-chars? value))
   (update-error field :format (helpers/bad-format? value)))
 
 (add-watch depart-cursor :depart-watcher
            (fn [k a o n]
              (check-errors :depart-date n)))
 
-(add-watch return-cursor :depart-watcher
+(add-watch return-cursor :return-watcher
            (fn [k a o n]
-             (check-errors :depart-date n)))
+             (check-errors :return-date n)))
 
-(add-watch state :state-watcher #(-> %4 print))
+;(add-watch state :state-watcher #(-> %4 print))
 
 ; Handlers
 (defn handle-select [e]
@@ -58,6 +60,8 @@
     [:div {:class "field"}
      [:label {:class "label"} "Depart"]
      [:div {:class "control"}
+      (and (-> @state :depart-date :errors :format) [:span "Bad format"])
+      (and (-> @state :depart-date :errors :letters) [:span "letters disallowed"])
       [:input {:class "input" :value (-> @state :depart-date :value) :on-change handle-date-change :name "depart" :type "text" :placeholder "ex: 02/31/2021"}]]]
     [:div {:class "field"}
      [:label {:class "label"} "Return"]
