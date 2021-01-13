@@ -22,26 +22,21 @@
 ; Set error fields true or false on input state change
 (defn check-errors [field value]
   (let [char-err (helpers/bad-chars? value) format-err (helpers/bad-format? value)]
-  ;(if (= field :depart-date) (helpers/bad-start-date? value) (helpers/bad-return-date? @depart-cursor value))
     (update-error field :chars char-err)
     (update-error field :format format-err)
     (if
-     (not (or char-err format-err))
+     (and (not (or char-err format-err)) (> (count value) 0))
       (cond
-        (= field :depart-date) (helpers/bad-start-date? value)
-        (= field :return-date) (helpers/bad-return-date? value)))))
+        (= field :depart-date)
+        (update-error field :invalid (helpers/bad-start-date? value))
+        (= field :return-date)
+        (update-error field :invalid (helpers/bad-return-date? value))))))
 
-(add-watch depart-cursor :depart-watcher
-           (fn [k a o n]
-             (check-errors :depart-date n)))
+; Pass changed state values to `check-errors`
+(add-watch depart-cursor :depart-watcher #(check-errors :depart-date %4))
+(add-watch return-cursor :return-watcher #(check-errors :return-date %4))
 
-(add-watch return-cursor :return-watcher
-           (fn [k a o n]
-             (check-errors :return-date n)))
-
-;(add-watch state :state-watcher #(-> %4 print))
-
-; Handlers
+; Input handlers
 (defn handle-select [e]
   (let [v (-> e .-target .-value)]
     (swap! state assoc :active-option v)))
