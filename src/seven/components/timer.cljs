@@ -26,12 +26,17 @@
 ; Start timer on mount
 (set-interval)
 
+(add-watch state :seconds-watcher
+           #(if (>= (@state :elapsed-duration) (@state :chosen-duration))
+              (js/clearInterval @interval-object)))
+
 (defn main []
   [component-wrapper "Timer"
    [:div {:class "content" :style {:height "fit-content"}}
     [:progress {:class "progress is-primary" :value (str (@state :elapsed-duration)) :max (str (@state :chosen-duration))}]
     [:div {:class "block"}]
-    [:span (@state :elapsed-duration) " seconds elapsed"]
+    [:span {:class "is-size-5"} (@state :elapsed-duration) " seconds elapsed"
+     (if (>= (@state :elapsed-duration) (@state :chosen-duration)) " - Done!")]
     [:div {:class "block"}]
     [:input {:type "range"
              :on-change handle-duration-change
@@ -41,6 +46,6 @@
              :max (@state :max-duration)}]
 
     [:div {:class "block"}]
-    [:span (@state :chosen-duration) " seconds maximum"]
+    [:span {:class "is-size-5"} "Timer set for " (@state :chosen-duration) " seconds"]
     [:div {:class "block"}]
     [:button {:class "button is-primary" :on-click reset-timer} "Reset"]]])
