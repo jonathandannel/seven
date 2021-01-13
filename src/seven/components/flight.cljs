@@ -21,9 +21,15 @@
 
 ; Set error fields true or false on input state change
 (defn check-errors [field value]
-  (if (= field :depart-date) (helpers/bad-start-date? value) (helpers/bad-return-date? @depart-cursor value))
-  (update-error field :chars (helpers/bad-chars? value))
-  (update-error field :format (helpers/bad-format? value)))
+  (let [char-err (helpers/bad-chars? value) format-err (helpers/bad-format? value)]
+  ;(if (= field :depart-date) (helpers/bad-start-date? value) (helpers/bad-return-date? @depart-cursor value))
+    (update-error field :chars char-err)
+    (update-error field :format format-err)
+    (if
+     (not (or char-err format-err))
+      (cond
+        (= field :depart-date) (helpers/bad-start-date? value)
+        (= field :return-date) (helpers/bad-return-date? value)))))
 
 (add-watch depart-cursor :depart-watcher
            (fn [k a o n]
@@ -61,7 +67,7 @@
      [:label {:class "label"} "Depart"]
      [:div {:class "control"}
       (and (-> @state :depart-date :errors :format) [:span "Bad format"])
-      (and (-> @state :depart-date :errors :letters) [:span "letters disallowed"])
+      (and (-> @state :depart-date :errors :chars) [:span "letters disallowed"])
       [:input {:class "input" :value (-> @state :depart-date :value) :on-change handle-date-change :name "depart" :type "text" :placeholder "ex: 02/31/2021"}]]]
     [:div {:class "field"}
      [:label {:class "label"} "Return"]
