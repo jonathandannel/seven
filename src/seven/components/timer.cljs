@@ -23,6 +23,11 @@
   (swap! state assoc :elapsed-duration 0)
   (set-interval))
 
+(defn format-sec [s]
+  (let [decimal (/ s 60) minutes (js/Math.floor (/ s 60))]
+    (let [nice-seconds (js/Math.round (* (- decimal minutes) 60))]
+      (str minutes ":" (if (< nice-seconds 10) (str "0" nice-seconds) nice-seconds)))))
+
 ; Start timer on mount
 (set-interval)
 
@@ -34,8 +39,7 @@
   [component-wrapper "Timer"
    [:div {:class "content" :style {:height "fit-content"}}
     [:progress {:class "progress is-primary" :value (str (@state :elapsed-duration)) :max (str (@state :chosen-duration))}]
-    [:div {:class "block"}]
-    [:span {:class "is-size-5"} (@state :elapsed-duration) " seconds elapsed"
+    [:h3 {:class "subtitle is-4"} (format-sec (@state :elapsed-duration))
      (if (>= (@state :elapsed-duration) (@state :chosen-duration)) " - Done!")]
     [:div {:class "block"}]
     [:input {:type "range"
@@ -46,6 +50,6 @@
              :max (@state :max-duration)}]
 
     [:div {:class "block"}]
-    [:span {:class "is-size-5"} "Timer set for " (@state :chosen-duration) " seconds"]
+    [:h3 {:class "subtitle is-4"} "Timer set for " (format-sec (@state :chosen-duration))]
     [:div {:class "block"}]
     [:button {:class "button is-primary" :on-click reset-timer} "Reset"]]])
