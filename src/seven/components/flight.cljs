@@ -22,16 +22,19 @@
 
 ; Set error fields true or false on input state change
 (defn check-errors [field value]
-  (let [char-err (helpers/bad-chars? value) format-err (helpers/bad-format? value)]
+  (let [char-err (helpers/bad-chars? value)
+        format-err (helpers/bad-format? value)]
     (update-error field :chars char-err)
     (update-error field :format format-err)
     (if
      (not (or char-err format-err (< (count value) 1)))
       (cond
         (= field :depart-date)
-        (update-error field :invalid (helpers/bad-start-date? value))
+        (update-error field :invalid
+                      (helpers/bad-start-date? value))
         (= field :return-date)
-        (update-error field :invalid (helpers/bad-return-date? @depart-cursor value)))
+        (update-error field :invalid
+                      (helpers/bad-return-date? @depart-cursor value)))
       ; Remove the invalid state when date isn't fully entered again
       (update-error field :invalid false))))
 
@@ -98,7 +101,7 @@
                :value (-> @state :return-date :value)
                :on-change handle-date-change
                :name "return"
-               :disabled (= (@state :active-option) 1)
+               :disabled (= (int (@state :active-option)) 1)
                :type "text" :placeholder "ex: 03/08/2021"}]]]
     [:div {:class "block"}]
     [:div {:class "field"}
@@ -106,11 +109,13 @@
       [:button {:class "button is-primary"
                 :on-click
                 #(js/alert
-                  (str "Thank you for booking with us.
-                        A confirmation email will be sent to you shortly."
+                  (str "Thank you for booking with us!"
                        "\n \n"
                        "Depart date: " @depart-cursor "\n"
-                       "Return date: " @return-cursor))
+                       "Return date: "
+                       (cond
+                         (= (int (@state :active-option)) 1) "No return flight."
+                         :else @return-cursor)))
                 :disabled
                 (or
                  (= (count @depart-cursor) 0)
