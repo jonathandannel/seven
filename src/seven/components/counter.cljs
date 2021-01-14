@@ -6,8 +6,7 @@
   (let [total (r/atom 0)]
     (fn []
       [component-wrapper "Counter"
-       [:div {:class "level"}
-        [:span {:class "level-left is-size-4"} "Click count: " @total]
-        [:button {:class "button is-danger level-right"
-                  :on-click #(swap! total inc)}
+       [:div.level
+        [:span.level-left.is-size-4 "Click count: " @total]
+        [:button.button.is-danger-level-right  {:on-click #(swap! total inc)}
          "Click to increment"]]])))

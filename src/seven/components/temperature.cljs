@@ -11,35 +11,36 @@
   (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
-  ; Input name is either "f" or "c" 
-  ; Set that state map key's value and convert the other
-  (let [k (-> e .-target .-name) v (-> e .-target .-value)]
+  ; Set temp k/v pair and convert the other
+  (let [k (-> e .-target .-name)
+        v (-> e .-target .-value)]
     (cond
-      ; Nil state on empty input value, show placeholder
-      (= v "") (reset! state {:f nil :c nil})
-      (= k "f") (reset! state {:f v :c (to-c v)})
-      (= k "c") (reset! state {:c v :f (to-f v)}))))
+      (= v "")
+      (reset! state {:f nil :c nil})
+      (= k "f")
+      (reset! state {:f v :c (to-c v)})
+      (= k "c")
+      (reset! state {:c v :f (to-f v)}))))
 
 ; Easily replace input value without needing to delete/backspace
 (defn select-all [e]
   (.select (.-target e)))
 
 (defn temp-input [t]
-  [:div {:class "field"}
-   [:label {:class "label"} (if (= t "f") "Fahrenheit" "Celsius")]
-   [:div {:class "control"}
-    [:input {:type "number"
-             :class "input is-primary"
-             :name t
-             :placeholder (str "°" t)
-             :value ((keyword t) @state)
-             :on-focus select-all
-             :on-change handle-change}]]])
+  [:div.field
+   [:label.label (if (= t "f") "Fahrenheit" "Celsius")]
+   [:div.control
+    [:input.input.is-primary {:type "number"
+                              :name t
+                              :placeholder (str "°" t)
+                              :value ((keyword t) @state)
+                              :on-focus select-all
+                              :on-change handle-change}]]])
 
 (defn main []
   [component-wrapper "Temperature converter"
-   [:div {:class "columns"}
-    [:div {:class "column is-half"}
+   [:div.columns
+    [:div.column.is-half
      [temp-input "c"]]
-    [:div {:class "column is-half"}
+    [:div.column.is-half
      [temp-input "f"]]]])
