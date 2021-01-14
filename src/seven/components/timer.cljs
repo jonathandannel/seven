@@ -39,7 +39,7 @@
   [component-wrapper "Timer"
    [:div {:class "content" :style {:height "fit-content"}}
     [:progress {:class "progress is-primary" :value (str (@state :elapsed-duration)) :max (str (@state :chosen-duration))}]
-    [:h3 {:class "subtitle is-4"} (format-sec (@state :elapsed-duration))
+    [:h5 {:class "subtitle is-5"} (format-sec (@state :elapsed-duration))
      (if (>= (@state :elapsed-duration) (@state :chosen-duration)) " - Done!")]
     [:div {:class "block"}]
     [:input {:type "range"
@@ -50,6 +50,6 @@
              :max (@state :max-duration)}]
 
     [:div {:class "block"}]
-    [:h3 {:class "subtitle is-4"} "Timer set for " (format-sec (@state :chosen-duration))]
+    [:h5 {:class "subtitle is-5"} "Timer set for " (format-sec (@state :chosen-duration))]
     [:div {:class "block"}]
     [:button {:class "button is-primary" :on-click reset-timer} "Reset"]]])
