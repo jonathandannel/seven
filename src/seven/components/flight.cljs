@@ -5,12 +5,12 @@
 
 (def opts {:1 "One way flight" :2 "Round trip flight"})
 
-(defonce state (r/atom
-                {:active-option 1
-                 :depart-date {:value ""
-                               :errors {:format false :chars false :invalid false}}
-                 :return-date {:value ""
-                               :errors {:format false :chars false :invalid false}}}))
+(def state (r/atom
+            {:active-option 1
+             :depart-date {:value ""
+                           :errors {:format false :chars false :invalid false}}
+             :return-date {:value ""
+                           :errors {:format false :chars false :invalid false}}}))
 
 ; Pointers to date vals, watch them for errors as they're updated
 (def depart-cursor (r/cursor state [:depart-date :value]))
@@ -36,8 +36,10 @@
       (update-error field :invalid false))))
 
 ; Pass changed state values to `check-errors`, %4th argument is new state after change
-(add-watch depart-cursor :depart-watcher #(check-errors :depart-date %4))
-(add-watch return-cursor :return-watcher #(check-errors :return-date %4))
+(add-watch depart-cursor :depart-watcher
+           #(check-errors :depart-date %4))
+(add-watch return-cursor :return-watcher
+           #(check-errors :return-date %4))
 
 (defn field-has-errors? [field]
   (contains? (set (vals (-> @state (get (keyword field)) :errors))) true))
@@ -45,7 +47,7 @@
 ; Input handlers
 (defn handle-select [e]
   (let [v (-> e .-target .-value)]
-    (swap! state assoc :active-option v)))
+    (swap! state assoc-in [:active-option] v)))
 
 (defn handle-date-change [e]
   (let [k (-> e .-target .-name) v (-> e .-target .-value)]
@@ -56,12 +58,16 @@
 (defn render-errors [field]
   [:<>
    (and (-> @state (get (keyword field)) :errors :format)
-        [:p {:class "help is-danger"} "Date must be in MM/DD/YYYY format"])
+        [:p {:class "help is-danger"}
+         "Date must be in MM/DD/YYYY format"])
    (and (-> @state (get (keyword field)) :errors :chars)
-        [:p {:class "help is-danger"} "Date may only contain numbers and slashes"])
+        [:p {:class "help is-danger"}
+         "Date may only contain numbers and slashes"])
    (and (-> @state (get (keyword field)) :errors :invalid)
         [:p {:class "help is-danger"}
-         (if (= (keyword field) :depart-date) "Date must be in the future" "Return date must be after depart date")])])
+         (if (= (keyword field) :depart-date)
+           "Date must be in the future"
+           "Return date must be after depart date")])])
 
 (defn main []
   [component-wrapper "Flight booker"
@@ -79,6 +85,7 @@
       [render-errors :depart-date]
       [:input {:class (str "input" (if (field-has-errors? :depart-date) " is-danger"))
                :value (-> @state :depart-date :value)
+               :key "depart-input"
                :on-change handle-date-change
                :name "depart"
                :type "text" :placeholder "ex: 02/31/2021"}]]]
@@ -87,6 +94,7 @@
      [:div {:class "control"}
       [render-errors :return-date]
       [:input {:class (str "input" (if (field-has-errors? :return-date) " is-danger"))
+               :key "return-input"
                :value (-> @state :return-date :value)
                :on-change handle-date-change
                :name "return"
@@ -96,9 +104,20 @@
     [:div {:class "field"}
      [:div {:class "control"}
       [:button {:class "button is-primary"
-                :on-click #(js/alert "Thank you for booking with us. A confirmation email will be sent to you shortly.")
+                :on-click
+                #(js/alert
+                  (str "Thank you for booking with us.
+                        A confirmation email will be sent to you shortly."
+                       "\n \n"
+                       "Depart date: " @depart-cursor "\n"
+                       "Return date: " @return-cursor))
                 :disabled
-                (or (= "" @depart-cursor) (and (= "" @return-cursor) (= @state :active-option 2))
-                    (contains? (set (vals (-> @state :depart-date :errors))) true)
-                    (contains? (set (vals (-> @state :return-date :errors))) true))}
+                (or
+                 (= (count @depart-cursor) 0)
+                 (and
+                  (= (count @return-cursor) 0)
+                  (= @state :active-option 2))
+                 (or
+                  (field-has-errors? :depart-date)
+                  (field-has-errors? :return-date)))}
        "Book flight"]]]]])
