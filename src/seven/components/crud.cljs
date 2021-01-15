@@ -39,13 +39,16 @@
     (reset! name-list filtered)
     (reset! active-name {:first-name "" :last-name ""})))
 
-(defn handle-filter-change [e]
-  (reset! filter-query (-> e .-target .-value)))
-
 (defn filter-entry [curr]
   (let [query-length (count @filter-query)]
     (if (=
-         (subs (lower-case (get curr :last-name)) 0 query-length) (lower-case @filter-query)) true)))
+         (subs (lower-case (get curr :last-name)) 0 query-length)
+         (lower-case @filter-query))
+      true)))
+
+(defn handle-filter-change [e]
+  (reset! filter-query (-> e .-target .-value))
+  (select-name (first (filterv #(filter-entry %) @name-list))))
 
 (defn main []
   [component-wrapper "CRUD"
