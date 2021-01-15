@@ -61,7 +61,7 @@
         [:label.label "Filter "]]
        [:div.level-right
         [:div.control
-         [:input.input.is-primary {:on-change handle-filter-change}]]]]]]
+         [:input.input.is-primary.pr-1 {:on-change handle-filter-change}]]]]]]
     [:div.columns
      ; List
      [:div.column.is-half
