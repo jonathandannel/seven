@@ -49,22 +49,23 @@
 (defn handle-filter-change [e]
   (reset! filter-query (-> e .-target .-value))
   (let [filtered (filterv #(filter-entry %) @name-list)]
-    (if (> (count filtered) 0) select-name (first filtered))))
+    (if (> (count filtered) 0) (select-name (first filtered)))))
 
 (defn main []
   [component-wrapper "CRUD"
    [:div.rows
-    [:div.field.is-flex.is-flex-row.mb-5
-     [:div.level
-      [:div.level-left.mr-3
-       [:label.label "Filter "]]
-      [:div.level-right
-       [:div.control
-        [:input.input.is-primary {:on-change handle-filter-change}]]]]]
+    [:div.column-is-half
+     [:div.field.is-flex.is-flex-row.mb-5
+      [:div.level
+       [:div.level-left.mr-3
+        [:label.label "Filter "]]
+       [:div.level-right
+        [:div.control
+         [:input.input.is-primary {:on-change handle-filter-change}]]]]]]
     [:div.columns
      ; List
      [:div.column.is-half
-      [:div.menu
+      [:div.menu {:style {:overflow-y "scroll" :height "15vh"}}
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
          (for [person (filterv #(filter-entry %) @name-list)]
