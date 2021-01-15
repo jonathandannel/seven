@@ -1,8 +1,11 @@
 (ns seven.components.crud
   (:require [reagent.core :as r]
+            [clojure.string :refer [lower-case]]
             [seven.components.ui :refer [component-wrapper]]))
 
-(defonce name-list (r/atom [{:first-name "Jonathan" :last-name "Dannel"}]))
+(defonce name-list (r/atom
+                    [{:first-name "Jonathan" :last-name "Dannel"}
+                     {:first-name "Bardia" :last-name "Pourvakil"}]))
 (defonce filter-query (r/atom ""))
 (defonce filtered-names (r/atom []))
 (defonce active-name (r/atom {:first-name "Jonathan" :last-name "Dannel"}))
@@ -12,8 +15,8 @@
   (reset! active-name person)
   (reset! updating person))
 
-(defn can-create? []
-  (not (boolean (some #(= @active-name %) @name-list))))
+(defn can-create? [n]
+  (not (boolean (some #(= n %) @name-list))))
 
 (defn create-entry []
   (let [first-name (@active-name :first-name)
@@ -21,32 +24,35 @@
     (if (and
          (not= first-name "")
          (not= last-name "")
-         can-create?)
+         (can-create? @active-name))
       (swap! name-list conj {:first-name first-name :last-name last-name}))))
 
 (defn update-entry []
   (let [index (.indexOf @name-list @updating)]
-    (swap! name-list assoc index @active-name)
+    (if (can-create? @updating)
+      (swap! name-list assoc index @active-name))
     (select-name @active-name)))
 
 (defn delete-entry []
   (let [filtered  (filterv #(not= % @active-name) @name-list)]
     (reset! name-list filtered)
     (reset! active-name {:first-name "" :last-name ""})
-    (reset! updating {:first-name "" :last-name ""})))
+    ;(reset! updating {:first-name "" :last-name ""}
+))
 
 (defn handle-filter-change [e]
   (reset! filter-query (-> e .-target .-value)))
 
-
 (defn filter-entry [curr]
   (let [query-length (count @filter-query)]
-  (if (= (subs (curr :last-name) 0 query-length) @filter-query) true)))
+    (if (=
+         (subs (lower-case (get curr :last-name)) 0 query-length) (lower-case @filter-query)) true)))
 
 (add-watch filter-query :query-watcher
            (fn [k a o n]
-             (let [filtered (filterv filter-entry @name-list)]
-             (print filtered)))
+             (reset! filtered-names (filterv #(filter-entry %) @name-list))))
+
+(add-watch filtered-names :filter-watcher #(print %4))
 
 (defn main []
   [component-wrapper "CRUD"
@@ -64,7 +70,7 @@
       [:div.menu
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
-         (for [person (if (not= filter-query "") @name-list @filtered-names)]
+         (for [person  @name-list]
            (let [first-name (person :first-name)
                  last-name (person :last-name)]
              ^{:key (str first-name last-name)}
@@ -88,6 +94,6 @@
            :value (@active-name :last-name)}]]]]]]
     ; Bottom buttons
     [:div.is-flex
-     [:button.button.is-primary.mr-3  {:disabled (not (can-create?)) :on-click create-entry} "Create"]
+     [:button.button.is-primary.mr-3  {:disabled (not (can-create? @active-name)) :on-click create-entry} "Create"]
      [:button.button.is-primary.mr-3 {:on-click update-entry} "Update"]
      [:button.button.is-danger.mr-3 {:on-click delete-entry} "Delete"]]]])
