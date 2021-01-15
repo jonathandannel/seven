@@ -5,9 +5,10 @@
 
 (defonce name-list (r/atom
                     [{:first-name "Jonathan" :last-name "Dannel"}
-                     {:first-name "Bardia" :last-name "Pourvakil"}]))
+                     {:first-name "Bardia" :last-name "Pourvakil"}
+                     {:first-name "Musashi" :last-name "Miyamoto"}]))
+
 (defonce filter-query (r/atom ""))
-(defonce filtered-names (r/atom []))
 (defonce active-name (r/atom {:first-name "Jonathan" :last-name "Dannel"}))
 (defonce updating (r/atom {:first-name "Jonathan" :last-name "Dannel"}))
 
@@ -29,16 +30,14 @@
 
 (defn update-entry []
   (let [index (.indexOf @name-list @updating)]
-    (if (can-create? @updating)
+    (if (can-create? @active-name)
       (swap! name-list assoc index @active-name))
     (select-name @active-name)))
 
 (defn delete-entry []
   (let [filtered  (filterv #(not= % @active-name) @name-list)]
     (reset! name-list filtered)
-    (reset! active-name {:first-name "" :last-name ""})
-    ;(reset! updating {:first-name "" :last-name ""}
-))
+    (reset! active-name {:first-name "" :last-name ""})))
 
 (defn handle-filter-change [e]
   (reset! filter-query (-> e .-target .-value)))
@@ -47,12 +46,6 @@
   (let [query-length (count @filter-query)]
     (if (=
          (subs (lower-case (get curr :last-name)) 0 query-length) (lower-case @filter-query)) true)))
-
-(add-watch filter-query :query-watcher
-           (fn [k a o n]
-             (reset! filtered-names (filterv #(filter-entry %) @name-list))))
-
-(add-watch filtered-names :filter-watcher #(print %4))
 
 (defn main []
   [component-wrapper "CRUD"
@@ -70,7 +63,7 @@
       [:div.menu
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
-         (for [person  @name-list]
+         (for [person (filterv #(filter-entry %) @name-list)]
            (let [first-name (person :first-name)
                  last-name (person :last-name)]
              ^{:key (str first-name last-name)}
