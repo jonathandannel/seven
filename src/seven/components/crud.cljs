@@ -48,7 +48,8 @@
 
 (defn handle-filter-change [e]
   (reset! filter-query (-> e .-target .-value))
-  (select-name (first (filterv #(filter-entry %) @name-list))))
+  (let [filtered (filterv #(filter-entry %) @name-list)]
+    (if (> (count filtered) 0) select-name (first filtered))))
 
 (defn main []
   [component-wrapper "CRUD"
