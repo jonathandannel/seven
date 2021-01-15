@@ -74,6 +74,7 @@
            "Date must be in the future"
            "Return date must be after depart date")])])
 
+; TODO: Create a generalized input component
 (defn main []
   [component-wrapper "Flight booker"
    [:div.content
