@@ -2,16 +2,16 @@
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]))
 
+; Vector of [x, y, r] paths for each circle in current canvas state
 (defonce all-paths (r/atom []))
-(defonce selected-circle-index (r/atom nil))
-
+; Vector of [ state1 state2 state3 ] for every step in changes 
 (defonce history (r/atom []))
 (defonce current-history-index (r/atom 0))
-
-(defonce ctx-ref (r/atom nil))
+(defonce selected-circle-index (r/atom nil))
 (defonce chosen-radius (r/atom 25))
-(defonce updating (r/atom false))
+(defonce history-paused-at (r/atom nil))
 (defonce drawing-disabled (r/atom false))
+(defonce ctx-ref (r/atom nil))
 
 (defn redraw-canvas [ctx]
   (.clearRect ctx 0 0 640 480)
@@ -20,6 +20,7 @@
     (set! (.-fillStyle ctx) "lightgrey")
     (if (= idx @selected-circle-index) (.fill ctx circle))))
 
+; Find existing objects under cursor
 (defn get-cursor-path [e]
   (let [ctx (-> e .-target (.getContext "2d"))
         rect (.getBoundingClientRect e.target)
@@ -29,35 +30,38 @@
       (if (.isPointInPath ctx circle x y)
         (do
           (reset! selected-circle-index idx)
-          (reset! drawing-disabled true))
+          (reset! drawing-disabled true)
+          (reset! chosen-radius (last (@all-paths @selected-circle-index))))
         (reset! drawing-disabled false)))
     (redraw-canvas ctx)))
 
-(defn on-mouse-down [e]
+(defn draw-circle [e]
   (.preventDefault e)
   (let [ctx (-> e .-target (.getContext "2d"))
         rect (.getBoundingClientRect e.target)
         x (- e.clientX rect.left)
         y (- e.clientY rect.top)
+        r 25
         circle (js/Path2D.)]
     (reset! ctx-ref ctx)
-    (.arc circle x y 25 0 (* 2 Math.PI))
+    (.arc circle x y r 0 (* 2 Math.PI))
     (if (not @drawing-disabled)
       (do
-    ; If you make changes after an undo, then slice history up until this change
+    ; If you make changes after an undo, the current state becomes the latest
         (if (< @current-history-index (- (count @history) 1))
           (do
             (swap! history #(subvec % 0 (+ @current-history-index 1)))
             (reset! all-paths (get @history @current-history-index))))
-        (swap! all-paths conj [circle x y])
+        (swap! all-paths conj [circle x y r])
         (swap! history conj @all-paths)
         (reset! current-history-index (- (count @history) 1))
         (redraw-canvas ctx)))))
 
-(defn edit-circle [e]
-  (reset! updating (count @history)))
+; Bookmark place in history so we can ignore resizing before save
+(defn start-updating [e]
+  (reset! history-paused-at (count @history)))
 
-(defn change-diameter [e]
+(defn edit-circle [e]
   (let [new-val (-> e .-target .-value)
         [_ x y] (get @all-paths @selected-circle-index)
         circle (js/Path2D.)]
@@ -67,16 +71,17 @@
       (do
         (swap! history #(subvec % 0 (+ @current-history-index 1)))
         (reset! all-paths (get @history @current-history-index))))
-    (swap! all-paths assoc @selected-circle-index [circle x y])
+    (swap! all-paths assoc @selected-circle-index [circle x y new-val])
     (swap! history conj @all-paths)
     (reset! current-history-index (- (count @history) 1))
+    (reset! chosen-radius new-val)
     (redraw-canvas @ctx-ref)))
 
 (defn remove-erroneous-history []
   (let [old-history @history]
-    (reset! history (conj (subvec old-history 0 @updating) (get @history @current-history-index)))
+    (reset! history (conj (subvec old-history 0 @history-paused-at) (get @history @current-history-index)))
     (reset! current-history-index (- (count @history) 1))
-    (reset! updating nil)))
+    (reset! history-paused-at nil)))
 
 (defn undo []
   (if (> @current-history-index -1)
@@ -94,8 +99,11 @@
   (reset! history [])
   (reset! current-history-index 0))
 
+(defn get-current-circle-radius []
+  (print (last (@all-paths @selected-circle-index))))
+
 (defn handle-click [e]
-  (if (= e.nativeEvent.which 1) (on-mouse-down e) (edit-circle e)))
+  (if (= e.nativeEvent.which 1) (draw-circle e) (start-updating e)))
 
 (defn main []
   [component-wrapper "Circle drawer"
@@ -105,8 +113,8 @@
      [:button.button.is-primary.mr-5 {:on-click redo} "Redo"]
      [:button.button.is-danger {:on-click reset} "Reset"]]
     [:div.box.mt-5
-     [:div.modal {:class (if @updating "is-active")}
-      [:div.modal-background {:on-click remove-erroneous-history}]
+     [:div.modal {:class (if @history-paused-at "is-active")}
+      [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
       [:div.modal-content
-       [:input {:on-change change-diameter :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]
+       [:input {:on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]
      [:canvas {:on-mouse-down handle-click :on-mouse-move get-cursor-path  :width 640 :height 480}]]]])
