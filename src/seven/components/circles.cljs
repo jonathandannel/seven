@@ -2,9 +2,7 @@
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]))
 
-; Vector of [x, y, r] paths for each circle in current canvas state
 (defonce all-paths (r/atom []))
-; Vector of [ state1 state2 state3 ] for every step in changes 
 (defonce history (r/atom []))
 (defonce current-history-index (r/atom 0))
 (defonce selected-circle-index (r/atom nil))
@@ -36,7 +34,6 @@
     (redraw-canvas ctx)))
 
 (defn draw-circle [e]
-  (.preventDefault e)
   (let [ctx (-> e .-target (.getContext "2d"))
         rect (.getBoundingClientRect e.target)
         x (- e.clientX rect.left)
@@ -59,6 +56,8 @@
 
 ; Bookmark place in history so we can ignore resizing before save
 (defn start-updating [e]
+  (.preventDefault e)
+  (.stopPropagation e)
   (reset! history-paused-at (count @history)))
 
 (defn edit-circle [e]
@@ -99,12 +98,6 @@
   (reset! history [])
   (reset! current-history-index 0))
 
-(defn get-current-circle-radius []
-  (print (last (@all-paths @selected-circle-index))))
-
-(defn handle-click [e]
-  (if (= e.nativeEvent.which 1) (draw-circle e) (start-updating e)))
-
 (defn main []
   [component-wrapper "Circle drawer"
    [:div.is-flex.is-flex-direction-column
@@ -117,4 +110,4 @@
       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
       [:div.modal-content
        [:input {:on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]
-     [:canvas {:on-mouse-down handle-click :on-mouse-move get-cursor-path  :width 640 :height 480}]]]])
+     [:canvas {:on-context-menu start-updating :on-click draw-circle :on-mouse-move get-cursor-path  :width 640 :height 480}]]]])
