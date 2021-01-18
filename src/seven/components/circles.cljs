@@ -100,7 +100,7 @@
 
 (defn main []
   [component-wrapper "Circle drawer"
-   [:div.is-flex.is-flex-direction-column
+   [:div.is-flex.is-flex-direction-column {:style {:width "max-content"}}
     [:div.container
      [:button.button.is-primary.mr-5 {:on-click undo}  "Undo"]
      [:button.button.is-primary.mr-5 {:on-click redo} "Redo"]
@@ -109,5 +109,11 @@
      [:div.modal {:class (if @history-paused-at "is-active")}
       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
       [:div.modal-content
-       [:input {:on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]
-     [:canvas {:on-context-menu start-updating :on-click draw-circle :on-mouse-move get-cursor-path  :width 640 :height 480}]]]])
+       [:div.panel.container.is-info {:style {:background "white" :width "50%"}}
+        [:div.panel-heading.is-size-6 "Edit circle radius"]
+        [:div.panel-block
+         [:div.field.pt-2 {:style {:width "100%" :background "white"}}
+          [:div.control
+           [:div.container
+            [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]]]]]]
+     [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (* 640 0.8) :height (* 480 0.8)}]]]])
