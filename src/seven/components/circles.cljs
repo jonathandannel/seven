@@ -6,7 +6,7 @@
 (defonce history (r/atom []))
 (defonce current-history-index (r/atom 0))
 (defonce selected-circle-index (r/atom nil))
-(defonce chosen-radius (r/atom 30))
+(defonce chosen-radius (r/atom 20))
 (defonce history-paused-at (r/atom nil))
 (defonce drawing-disabled (r/atom false))
 (defonce ctx-ref (r/atom nil))
@@ -40,7 +40,7 @@
         rect (.getBoundingClientRect e.target)
         x (- e.clientX rect.left)
         y (- e.clientY rect.top)
-        r 30
+        r 20
         circle (js/Path2D.)]
     (reset! ctx-ref ctx)
     (.arc circle x y r 0 (* 2 Math.PI))
@@ -101,25 +101,23 @@
   (reset! history [])
   (reset! current-history-index 0))
 
+(def window-width (.-innerWidth js/window))
+(def is-mobile (< window-width 500))
+
 (defn main []
   [component-wrapper "Circle drawer"
-   [:div.is-flex.is-flex-direction-column {:style {:width "max-content"}}
+   [:div.is-flex.is-flex-direction-column
     [:div.container
      [:button.button.is-primary.mr-5 {:on-click undo}
       [:span.icon
-       [:i.fas.fa-undo]]
-      [:div.block]
-      "Undo"]
+       [:i.fas.fa-undo]]]
      [:button.button.is-primary.mr-5 {:on-click redo}
       [:span.icon
-       [:i.fas.fa-redo]]
-      [:div.block]
-      "Redo"]
+       [:i.fas.fa-redo]]]
+
      [:button.button.is-danger {:on-click reset}
       [:span.icon
-       [:i.fas.fa-trash]]
-      [:div.block]
-      "Reset"]]
+       [:i.fas.fa-trash]]]]
     [:div.box.mt-5
      [:div.modal {:class (if @history-paused-at "is-active")}
       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
@@ -131,4 +129,4 @@
           [:div.control
            [:div.container
             [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 3 :max 120}]]]]]]]]
-     [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (* 640 0.8) :height (* 480 0.8)}]]]])
+     [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (if is-mobile (* window-width 0.8) 640) :height (if is-mobile (* window-width 0.8 1.333 0.8) 480)}]]]])
