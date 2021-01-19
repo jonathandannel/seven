@@ -20,6 +20,7 @@
 
 ; Find existing objects under cursor
 (defn get-cursor-path [e]
+  (reset! selected-circle-index nil)
   (let [ctx (-> e .-target (.getContext "2d"))
         rect (.getBoundingClientRect e.target)
         x (- e.clientX rect.left)
@@ -29,9 +30,10 @@
         (do
           (reset! selected-circle-index idx)
           (reset! drawing-disabled true)
-          (reset! chosen-radius (last (@all-paths @selected-circle-index))))
-        (reset! drawing-disabled false)))
-    (redraw-canvas ctx)))
+          (reset! chosen-radius (last (@all-paths @selected-circle-index)))))
+      (redraw-canvas ctx))))
+
+(add-watch selected-circle-index :selected-circle-watcher #(reset! drawing-disabled (boolean %4)))
 
 (defn draw-circle [e]
   (let [ctx (-> e .-target (.getContext "2d"))
