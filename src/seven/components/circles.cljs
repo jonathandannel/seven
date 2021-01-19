@@ -102,9 +102,21 @@
   [component-wrapper "Circle drawer"
    [:div.is-flex.is-flex-direction-column {:style {:width "max-content"}}
     [:div.container
-     [:button.button.is-primary.mr-5 {:on-click undo}  "Undo"]
-     [:button.button.is-primary.mr-5 {:on-click redo} "Redo"]
-     [:button.button.is-danger {:on-click reset} "Reset"]]
+     [:button.button.is-primary.mr-5 {:on-click undo}
+      [:span.icon
+       [:i.fas.fa-undo]]
+      [:div.block]
+      "Undo"]
+     [:button.button.is-primary.mr-5 {:on-click redo}
+      [:span.icon
+       [:i.fas.fa-redo]]
+      [:div.block]
+      "Redo"]
+     [:button.button.is-danger {:on-click reset}
+      [:span.icon
+       [:i.fas.fa-trash]]
+      [:div.block]
+      "Reset"]]
     [:div.box.mt-5
      [:div.modal {:class (if @history-paused-at "is-active")}
       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
