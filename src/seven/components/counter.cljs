@@ -7,7 +7,12 @@
 (defn main []
   [component-wrapper "Counter"
    [:div.level
-    [:span.level-left.is-size-5 "The button has been clicked " @total " times"]
+    [:div.level-left
+     [:div.level
+      [:div.level-left
+       [:span "You've clicked the button "]
+       [:span.tag.is-medium.is-info.level-right.ml-1 @total]
+       [:span.ml-1 " times."]]]]
     [:div.level-right
      [:button.button.is-primary  {:on-click #(swap! total inc)}
-      "Click to increment"]]]])
+      "Increment"]]]])

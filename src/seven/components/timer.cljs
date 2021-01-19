@@ -42,9 +42,9 @@
    [:div.content
     [:progress.progress.is-primary {:value (str (@state :elapsed-duration))
                                     :max (str (@state :chosen-duration))}]
-    [:h5.subtitle.is-5 (format-sec (@state :elapsed-duration))
-     (if (>= (@state :elapsed-duration) (@state :chosen-duration)) " - Done!")]
-    [:div.block]
+    [:div.is-flex
+     [:h5.subtitle.is-5.mr-2 (format-sec (@state :elapsed-duration))]
+     (if (>= (@state :elapsed-duration) (@state :chosen-duration)) [:span.icon.is-small.ml-2.pt-1.has-text-success [:i.fas.fa-check]])]
     [:input {:type "range"
              :on-change handle-duration-change
              :style {:width "100%"}
@@ -53,6 +53,10 @@
              :max (@state :max-duration)}]
 
     [:div.block]
-    [:h5.subtitle.is-5 "Timer set for " (format-sec (@state :chosen-duration))]
+    [:span.tag.is-info.is-medium.p-4
+     [:span.icon.mr-1 {:style {:padding-bottom 2}}
+      [:i.fas.fa-info]]
+     "Timer set for "
+     (format-sec (@state :chosen-duration))]
     [:div.block]
     [:button.button.is-primary {:on-click reset-timer} "Reset"]]])
