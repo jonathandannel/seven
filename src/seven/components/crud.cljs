@@ -65,7 +65,7 @@
     [:div.columns
      ; List
      [:div.column.is-half
-      [:div.menu {:style {:overflow-y "scroll" :height "25vh"}}
+      [:div.menu {:style {:overflow-y "scroll" :height "20vh"}}
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
          (for [person (filterv #(filter-entry %) @name-list)]
@@ -78,7 +78,7 @@
       ; Right side edit
      [:div.column.is-half
       [:div.columns
-       [:div.column.is-one-quarter.mr-4
+       [:div.column.is-one-quarter.mr-4.is-hidden-mobile
         [:div.is-flex.is-flex-direction-column
          [:label.label.pt-2 "Name"]
          [:label.label {:style {:padding-top "0.7em"}} "Surname"]]]

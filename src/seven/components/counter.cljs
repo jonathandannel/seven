@@ -2,11 +2,12 @@
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]))
 
+(def total (r/atom 0))
+
 (defn main []
-  (let [total (r/atom 0)]
-    (fn []
-      [component-wrapper "Counter"
-       [:div.level
-        [:span.level-left.is-size-4 "Click count: " @total]
-        [:button.button.is-danger-level-right  {:on-click #(swap! total inc)}
-         "Click to increment"]]])))
+  [component-wrapper "Counter"
+   [:div.level
+    [:span.level-left.is-size-5 "The button has been clicked " @total " times"]
+    [:div.level-right
+     [:button.button.is-primary  {:on-click #(swap! total inc)}
+      "Click to increment"]]]])

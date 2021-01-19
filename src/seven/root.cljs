@@ -10,12 +10,14 @@
 ;; Root contains all our components 
 (defn root []
   [:div {:class "content"}
-   ;[counter/main]
-   ;[:div {:class "block"}]
-   ;[temperature/main]
-   ;[:div {:class "block"}]
-   ;[timer/main]
-   ;[:div {:class "block"}]
-   ;[crud/main]
-   ;[:div.block]
+   [counter/main]
+   [:div {:class "block"}]
+   [temperature/main]
+   [:div {:class "block"}]
+   [flight/main]
+   [:div {:class "block"}]
+   [timer/main]
+   [:div {:class "block"}]
+   [crud/main]
+   [:div.block]
    [circles/main]])
