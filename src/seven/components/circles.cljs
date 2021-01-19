@@ -6,7 +6,7 @@
 (defonce history (r/atom []))
 (defonce current-history-index (r/atom 0))
 (defonce selected-circle-index (r/atom nil))
-(defonce chosen-radius (r/atom 25))
+(defonce chosen-radius (r/atom 30))
 (defonce history-paused-at (r/atom nil))
 (defonce drawing-disabled (r/atom false))
 (defonce ctx-ref (r/atom nil))
@@ -40,7 +40,7 @@
         rect (.getBoundingClientRect e.target)
         x (- e.clientX rect.left)
         y (- e.clientY rect.top)
-        r 25
+        r 30
         circle (js/Path2D.)]
     (reset! ctx-ref ctx)
     (.arc circle x y r 0 (* 2 Math.PI))
@@ -130,5 +130,5 @@
          [:div.field.pt-2 {:style {:width "100%" :background "white"}}
           [:div.control
            [:div.container
-            [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 10 :max 80}]]]]]]]]
+            [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 3 :max 120}]]]]]]]]
      [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (* 640 0.8) :height (* 480 0.8)}]]]])
