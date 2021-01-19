@@ -60,7 +60,8 @@
 (defn start-updating [e]
   (.preventDefault e)
   (.stopPropagation e)
-  (reset! history-paused-at (count @history)))
+  (if @selected-circle-index
+    (reset! history-paused-at (count @history))))
 
 (defn edit-circle [e]
   (let [new-val (-> e .-target .-value)
