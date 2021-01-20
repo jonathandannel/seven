@@ -5,5 +5,5 @@
    [:div {:class "card-header"}
     [:div {:class "card-header-title"}
      title]]
-   [:div {:class "card-content"}
+   [:div {:class "card-content" :style {:overflow "scroll" :max-height 500}}
     component]])
