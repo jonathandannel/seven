@@ -10,8 +10,7 @@
 
 ;; Root contains all our components 
 (defn root []
-  [:div {:class "content"}
-   [spreadsheet/main]])
+  [spreadsheet/main])
    ;[counter/main]
    ;[:div {:class "block"}]
    ;[temperature/main]
