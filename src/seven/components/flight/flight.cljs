@@ -1,7 +1,7 @@
 (ns seven.components.flight
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]
-            [seven.components.helpers :as helpers]))
+            [seven.components.flight.util :as util]))
 
 (def opts {:1 "One way flight" :2 "Round trip flight"})
 
@@ -22,16 +22,16 @@
 
 ; Set error fields true or false on input state change
 (defn check-errors [field value]
-  (let [char-err (helpers/bad-chars? value)
-        format-err (helpers/bad-format? value)]
+  (let [char-err (util/bad-chars? value)
+        format-err (util/bad-format? value)]
     (set-field-error field :chars char-err)
     (set-field-error field :format format-err)
     (if (not (or char-err format-err (< (count value) 1)))
       (cond
         (= field :depart-date)
-        (set-field-error field :invalid (helpers/bad-start-date? value))
+        (set-field-error field :invalid (util/bad-start-date? value))
         (= field :return-date)
-        (set-field-error field :invalid (helpers/bad-return-date? @depart-state-value value)))
+        (set-field-error field :invalid (util/bad-return-date? @depart-state-value value)))
       ; Remove the invalid error when date isn't fully entered again
       (set-field-error field :invalid false))))
 
