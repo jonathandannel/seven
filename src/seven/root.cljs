@@ -11,8 +11,6 @@
 ;; Root contains all our components 
 (defn root []
   [:<>
-   [spreadsheet/main]
-   [:div {:class "block"}]
    [counter/main]
    [:div {:class "block"}]
    [temperature/main]
@@ -23,4 +21,6 @@
    [:div {:class "block"}]
    [crud/main]
    [:div.block]
-   [circles/main]])
+   [circles/main]
+   [spreadsheet/main]
+   [:div {:class "block"}]])
