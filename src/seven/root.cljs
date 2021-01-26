@@ -10,15 +10,17 @@
 
 ;; Root contains all our components 
 (defn root []
-  [spreadsheet/main])
-   ;[counter/main]
-   ;[:div {:class "block"}]
-   ;[temperature/main]
-   ;[:div {:class "block"}]
-   ;[flight/main]
-   ;[:div {:class "block"}]
-   ;[timer/main]
-   ;[:div {:class "block"}]
-   ;[crud/main]
-   ;[:div.block]
-   ;[circles/main]])
+  [:<>
+   [spreadsheet/main]
+   [:div {:class "block"}]
+   [counter/main]
+   [:div {:class "block"}]
+   [temperature/main]
+   [:div {:class "block"}]
+   [flight/main]
+   [:div {:class "block"}]
+   [timer/main]
+   [:div {:class "block"}]
+   [crud/main]
+   [:div.block]
+   [circles/main]])
