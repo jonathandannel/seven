@@ -22,5 +22,7 @@
    [crud/main]
    [:div.block]
    [circles/main]
+   [:div.block]
    [spreadsheet/main]
+   [:div.block]
    [:div {:class "block"}]])
