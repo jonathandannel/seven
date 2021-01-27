@@ -9,8 +9,7 @@
 ; Value = Cells (args) that the formula depends on 
 ; Ex: {:b2 ["a1" "a2" "a3"]}
 
-; Formula cells showing plain :value rather than :computed
-; Uses hash map of coord, true for easy look up
+; Which cells should show plain :value rather than :computed
 (def showing-formula-value (r/atom {}))
 
 (def a-to-z (map char (range 97 123)))
@@ -26,24 +25,27 @@
   ; Read function syntax and compute
   (if (util/is-function value)
     (swap! cell-values assoc-in [(keyword coord) :computed]
-           (util/read-function value
-                               @cell-values update-formula-cell-map  coord)))
+           (util/compute-formula
+            value
+            @cell-values
+            update-formula-cell-map
+            coord)))
   ; Just handle changing the literal text value of a cell
   (swap! cell-values assoc-in [(keyword coord) :value] value)
 
+  ; If not a formula cell 
   ; Check if cell belongs to a function, if so recompute function
   (doseq [[k v] @formula-cell-map]
     (if (some #(= coord %) v)
       (swap! cell-values assoc-in [(keyword k) :computed]
-             (util/read-function
+             (util/compute-formula
               (get-in @cell-values [(keyword k) :value])
-              @cell-values update-formula-cell-map k)))))
+              @cell-values
+              update-formula-cell-map
+              k)))))
 
 (defn handle-cell-change [e]
-  (let [input (.-target e)
-        id (.-id input)
-        value (.-value input)]
-    (change-cell-value id value)))
+  (change-cell-value (-> e .-target .-id) (-> e .-target .-value)))
 
 ; Set whether a cell shows its formula or value
 (defn toggle-show-formula [id]

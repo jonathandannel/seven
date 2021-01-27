@@ -1,6 +1,5 @@
 (ns seven.components.spreadsheet.util
-  (:require [reagent.core :as r]
-            [clojure.string :as s]))
+  (:require [clojure.string :as s]))
 
 (def operations
   {:sum #(apply + %)
@@ -8,11 +7,15 @@
    :mul #(apply * %)
    :div #(apply / %)})
 
+(defn is-function [v]
+  (= (first v) "="))
+
 (defn get-coord-value [values string]
   (let [cell (values (keyword string))]
     (or (get cell :computed) (get cell :value))))
-  ;(get-in values [(keyword string) :value])))
 
+; Return a list of coords in string range
+; Ex: "b1:b4" -> [b1, b2, b3, b4]
 (defn unpack-range [_range all-values]
   (let [values (s/split _range #":")
         letter (first (first values))
@@ -23,19 +26,24 @@
                     (get-coord-value all-values (str letter el))]
                 (if (> (count (str value)) 0)
                   (conj acc (int value))
+                  ; Return acc
                   acc))) []
             (range (int start-row) (inc (int end-row))))))
 
-(defn get-real-values-from-args [args all-values]
+; Return a list of coord values from coord keys
+; Ex: [b1, b2, b3] -> [5, 3, 19]
+(defn map-coords-to-values [args all-values]
   (reduce (fn [acc el]
             (if (s/includes? el ":")
               (into acc (unpack-range (s/trim el) all-values))
-              ; else
+              ; Else
               (if (> (count (str (get-coord-value all-values (s/trim el)))) 0)
                 (conj acc (int (get-coord-value all-values (s/trim el))))
+                ; Return acc
                 acc))) [] args))
 
-(defn get-affected-cells [args]
+; Cells (args) that should update when a formula is updated
+(defn get-formula-cells [args]
   (reduce (fn [acc el]
             (if (s/includes? el ":")
               (let [values (s/split el #":")
@@ -47,20 +55,18 @@
                            (range (int start-row) (inc (int end-row))))))
               (if (> (int el) 0)
                 (conj acc (s/trim el))
+                ; Return acc 
                 acc)))
           [] args))
 
-(defn read-function [v all-values set-function-cells coord]
-  (if (> (count v) 3)
-    (if-let [op (get operations (keyword (subs v 1 4)))]
-      (let [arg-start (inc (s/index-of v "("))
-            arg-end (s/index-of v ")")]
+(defn compute-formula [formula all-values update-formula-cell-map coord]
+  (if (> (count formula) 3)
+    (if-let [op (get operations (keyword (subs formula 1 4)))]
+      (let [arg-start (inc (s/index-of formula "("))
+            arg-end (s/index-of formula ")")]
         (if (and arg-start arg-end op)
           (let [args
-                (s/split (s/trim (subs v arg-start arg-end)) #",")]
-            (set-function-cells coord (get-affected-cells args))
+                (s/split (s/trim (subs formula arg-start arg-end)) #",")]
+            (update-formula-cell-map coord (get-formula-cells args))
             (op
-             (vec (get-real-values-from-args args all-values)))))))))
-
-(defn is-function [v]
-  (= (first v) "="))
+             (vec (map-coords-to-values args all-values)))))))))
