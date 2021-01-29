@@ -12,7 +12,7 @@
 (defonce ctx-ref (r/atom nil))
 
 (defn redraw-canvas [ctx]
-  (.clearRect ctx 0 0 640 480)
+  (.clearRect ctx 0 0 800 600)
   (doseq [[idx, [circle]] (map-indexed vector (get @history @current-history-index))]
     (.stroke ctx circle)
     (set! (.-fillStyle ctx) "lightgrey")
@@ -96,13 +96,13 @@
   (redraw-canvas @ctx-ref))
 
 (defn reset []
-  (.clearRect @ctx-ref 0 0 640 480)
+  (.clearRect @ctx-ref 0 0 800 600)
   (reset! all-paths [])
   (reset! history [])
   (reset! current-history-index 0))
 
 (def window-width (.-innerWidth js/window))
-(def is-mobile (< window-width 500))
+(def is-mobile (< window-width 700))
 
 (defn main []
   [component-wrapper "Circle drawer"
@@ -114,19 +114,19 @@
      [:button.button.is-primary.mr-5 {:on-click redo}
       [:span.icon
        [:i.fas.fa-redo]]]
-
      [:button.button.is-danger {:on-click reset}
       [:span.icon
        [:i.fas.fa-trash]]]]
-    [:div.box.mt-5 {:style {:position "relative"}}
-     [:div.modal {:class (if @history-paused-at "is-active") :style {:position "absolute"}}
-      [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
-      [:div.modal-content {:style {:width "100%"}}
-       [:div.panel.container.is-info {:style {:background "white" :width "50%"}}
-        [:div.panel-heading.is-size-6 "Resize circle"]
-        [:div.panel-block
-         [:div.field.pt-2 {:style {:width "100%" :background "white"}}
-          [:div.control
-           [:div.container
-            [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 3 :max 120}]]]]]]]]
-     [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (if is-mobile (* window-width 0.8) 640) :height (if is-mobile (* window-width 0.8 1.333 0.8) 480)}]]]])
+    [:div.container
+     [:div.box.mt-5.p-0 {:style {:position "relative" :width "fit-content"}}
+      [:div.modal {:class (if @history-paused-at "is-active") :style {:position "absolute"}}
+       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
+       [:div.modal-content {:style {:width "100%"}}
+        [:div.panel.container.is-info {:style {:background "white" :width "50%"}}
+         [:div.panel-heading.is-size-6 "Resize circle"]
+         [:div.panel-block
+          [:div.field.pt-2 {:style {:width "100%" :background "white"}}
+           [:div.control
+            [:div.container
+             [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 3 :max 120}]]]]]]]]
+      [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (if is-mobile (* window-width 0.7) 800) :height (if is-mobile (* window-width 0.7 1.333 0.7) 600)}]]]]])

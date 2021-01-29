@@ -23,11 +23,12 @@
   (reset! active-tab index))
 
 (defn root []
-  [:<>
-   [:div.tabs.is-toggle.is-boxed.is-centered
-    [:ul
-     (map-indexed
-      (fn [index [component-name]]
-        [:li {:class (and (= index @active-tab) "is-active") :on-click #(change-tab index)}
-         [:a component-name]]) components)]]
-   ((last (get components @active-tab)))])
+  (let [active-tab @active-tab]
+    [:<>
+     [:div.tabs.is-toggle.is-boxed.is-centered
+      [:ul
+       (map-indexed
+        (fn [index [component-name]]
+          [:li {:key (str "component-" index) :class (if (= index active-tab) "is-active" "") :on-click #(change-tab index)}
+           [:a component-name]]) components)]]
+     ((last (get components active-tab)))]))
