@@ -24,7 +24,7 @@
 
 (defn root []
   (let [active-tab @active-tab]
-    [:<>
+    [:div.container {:style {:max-width 700}}
      [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width
       [:ul
        (map-indexed

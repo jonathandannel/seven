@@ -65,7 +65,7 @@
     [:div.columns
      ; List
      [:div.column.is-half
-      [:div.menu {:style {:overflow-y "scroll" :height "20vh"}}
+      [:div.menu {:style {:overflow-y "scroll" :height "30vh"}}
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
          (for [person (filterv #(filter-entry %) @name-list)]
