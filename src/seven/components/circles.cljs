@@ -118,12 +118,12 @@
      [:button.button.is-danger {:on-click reset}
       [:span.icon
        [:i.fas.fa-trash]]]]
-    [:div.box.mt-5
-     [:div.modal {:class (if @history-paused-at "is-active")}
+    [:div.box.mt-5 {:style {:position "relative"}}
+     [:div.modal {:class (if @history-paused-at "is-active") :style {:position "absolute"}}
       [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
       [:div.modal-content
        [:div.panel.container.is-info {:style {:background "white" :width "50%"}}
-        [:div.panel-heading.is-size-6 "Edit circle radius"]
+        [:div.panel-heading.is-size-6 "Resize circle"]
         [:div.panel-block
          [:div.field.pt-2 {:style {:width "100%" :background "white"}}
           [:div.control
