@@ -58,11 +58,13 @@ tr {
   text-align: center;
 }
 
+.spreadsheet-input:focus {
+  border: 1px solid black;
+  box-shadow: none;
+}
+
 .spreadsheet-title-number {
   font-size: 0.9em;
-  /*padding-top: 0.5em;*/
-  /*padding-right: 1em;*/
-  /*padding-left: 0.25em;*/
   padding: 0.5em 1em 0 0.75em; 
   margin-left: 0.25em;
   transform: translateX(1px);
@@ -75,17 +77,23 @@ tr {
   text-transform: uppercase;
 }
 
-.spreadsheet-input-active {
-  background: #eaffea;
-  border-radius: 0 ;
+.active-cell {
+  border-radius: 2;
+  border: 2px solid grey !important;
+  box-shadow: none !important;
 }
 
 .spreadsheet-active-letter, .spreadsheet-active-number {
   background: #ececec;
 }
 
-.function {
-  border: 4px solid #3298dc;
+.cell-formula {
+  border: 2px solid #00c4a7 !important;
+  font-weight: 600;
 }
 
+.cell-val {
+  border: 2px solid #ff879f !important;
+  font-weight: 600;
+}
 

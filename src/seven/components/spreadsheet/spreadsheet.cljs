@@ -4,10 +4,10 @@
 
 (def active-cell-id (r/atom nil))
 (def cell-values (r/atom {}))
-(def formula-cell-map (r/atom {}))
-; Key = Formula cell 
-; Value = Cells (args) that the formula depends on 
+
+; K (formula) V (cell args)
 ; Ex: {:b2 ["a1" "a2" "a3"]}
+(def formula-cell-map (r/atom {}))
 
 ; Which cells should show plain :value rather than :computed
 (def showing-formula-value (r/atom {}))
@@ -63,7 +63,6 @@
        "Cells"]]
      [:div.spreadsheet-container
       [:table
-    ; A-Z titles
        [:thead
         [:tr
          [:th.spreadsheet-title-letter {:key "spacer"} ""]
@@ -97,6 +96,11 @@
                             :on-focus set-active-cell
                             :class (str
                                     "spreadsheet-input"
-                                    (if (= id active-cell) "-active"))}]]))
+                                    (if (get-in cell-values [(keyword id) :computed])
+                                      (if (get showing-formula-value (keyword id))
+                                        " cell-formula" " cell-val")
+                                      "")
+                                    (if (= id active-cell)
+                                      " active-cell"))}]]))
                      a-to-z)])
              numbers)]]]]))
