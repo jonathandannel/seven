@@ -13,7 +13,7 @@
 (def showing-formula-value (r/atom {}))
 
 (def a-to-z (map char (range 97 123)))
-(def numbers (vec (range 101)))
+(def numbers (vec (range 51)))
 
 (defn set-active-cell [e]
   (reset! active-cell-id (-> e .-target .-id)))
@@ -22,6 +22,10 @@
   (swap! formula-cell-map assoc (keyword coord) cells))
 
 (defn change-cell-value [coord value]
+  (if (< (count value) 1)
+    (do
+      (swap! showing-formula-value dissoc (keyword coord))
+      (swap! cell-values assoc-in [(keyword coord) :computed] nil)))
   ; Read function syntax and compute
   (if (util/is-function value)
     (swap! cell-values assoc-in [(keyword coord) :computed]
