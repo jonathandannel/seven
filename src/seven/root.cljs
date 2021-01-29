@@ -1,28 +1,33 @@
 (ns seven.root
-  ;; Import components
-  (:require [seven.components.counter :as counter]
-            [seven.components.flight :as flight]
-            [seven.components.timer :as timer]
-            [seven.components.crud :as crud]
-            [seven.components.circles :as circles]
-            [seven.components.spreadsheet :as spreadsheet]
-            [seven.components.temperature :as temperature]))
+  (:require
+   [reagent.core :as r]
+   [seven.components.counter :as counter]
+   [seven.components.temperature :as temperature]
+   [seven.components.flight :as flight]
+   [seven.components.timer :as timer]
+   [seven.components.crud :as crud]
+   [seven.components.circles :as circles]
+   [seven.components.spreadsheet :as spreadsheet]))
 
-;; Root contains all our components 
+(def components [["Counter" counter/main]
+                 ["Temperature" temperature/main]
+                 ["Flight" flight/main]
+                 ["Timer" timer/main]
+                 ["CRUD" crud/main]
+                 ["Circles" circles/main]
+                 ["Spreadsheet" spreadsheet/main]])
+
+(def active-tab (r/atom 0))
+
+(defn change-tab [index]
+  (reset! active-tab index))
+
 (defn root []
   [:<>
-   [counter/main]
-   [:div {:class "block"}]
-   [temperature/main]
-   [:div {:class "block"}]
-   [flight/main]
-   [:div {:class "block"}]
-   [timer/main]
-   [:div {:class "block"}]
-   [crud/main]
-   [:div.block]
-   [circles/main]
-   [:div.block]
-   [spreadsheet/main]
-   [:div.block]
-   [:div {:class "block"}]])
+   [:div.tabs.is-toggle.is-boxed.is-centered
+    [:ul
+     (map-indexed
+      (fn [index [component-name]]
+        [:li {:class (and (= index @active-tab) "is-active") :on-click #(change-tab index)}
+         [:a component-name]]) components)]]
+   ((last (get components @active-tab)))])
