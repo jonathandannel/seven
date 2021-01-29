@@ -2,11 +2,11 @@
   (:require [clojure.string :as s]))
 
 (def operations
-  {:sum #(apply + (map js/parseFloat %))
-   :sub #(apply - (map js/parseFloat %))
-   :mul #(apply * (map js/parseFloat %))
-   :div #(apply / (map js/parseFloat %))
-   :avg #(/ (apply + (map js/parseFloat %)) (count %))})
+  {:sum #(apply + %)
+   :sub #(apply - %)
+   :mul #(apply * %)
+   :div #(apply / %)
+   :avg #(/ (apply + %) (count %))})
 
 (defn is-function [v]
   (= (first v) "="))
@@ -26,7 +26,7 @@
               (let [value
                     (get-coord-value all-values (str letter el))]
                 (if (> (count (str value)) 0)
-                  (conj acc value)
+                  (conj acc (js/parseFloat value))
                   acc))) []
             (range (int start-row) (inc (int end-row))))))
 
@@ -38,7 +38,7 @@
               (into acc (unpack-range (s/trim el) all-values))
               ; Else
               (if (> (count (str (get-coord-value all-values (s/trim el)))) 0)
-                (conj acc (get-coord-value all-values (s/trim el)))
+                (conj acc (js/parseFloat (get-coord-value all-values (s/trim el))))
                 ; Return acc
                 acc))) [] args))
 
@@ -53,10 +53,9 @@
                 (into acc
                       (map #(str letter %)
                            (range (int start-row) (inc (int end-row))))))
-              (if (> (count (str el)) 0)
-                (conj acc (s/trim el))
+              (conj acc (s/trim el)
                 ; Return acc 
-                acc)))
+                    acc)))
           [] args))
 
 ; Run a formula with the args provided
