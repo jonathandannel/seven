@@ -49,9 +49,10 @@
 
 ; Set whether a cell shows its formula or value
 (defn toggle-show-formula [id]
-  (if ((keyword id) @showing-formula-value)
-    (swap! showing-formula-value dissoc (keyword id))
-    (swap! showing-formula-value assoc (keyword id) true)))
+  (if (get-in @cell-values [(keyword id) :computed])
+    (if ((keyword id) @showing-formula-value)
+      (swap! showing-formula-value dissoc (keyword id))
+      (swap! showing-formula-value assoc (keyword id) true))))
 
 (defn main []
   (let [active-cell @active-cell-id
