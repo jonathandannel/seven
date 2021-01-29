@@ -2,10 +2,11 @@
   (:require [clojure.string :as s]))
 
 (def operations
-  {:sum #(apply + %)
-   :sub #(apply - %)
-   :mul #(apply * %)
-   :div #(apply / %)})
+  {:sum #(apply + (map js/parseFloat %))
+   :sub #(apply - (map js/parseFloat %))
+   :mul #(apply * (map js/parseFloat %))
+   :div #(apply / (map js/parseFloat %))
+   :avg #(/ (apply + (map js/parseFloat %)) (count %))})
 
 (defn is-function [v]
   (= (first v) "="))
@@ -25,8 +26,7 @@
               (let [value
                     (get-coord-value all-values (str letter el))]
                 (if (> (count (str value)) 0)
-                  (conj acc (int value))
-                  ; Return acc
+                  (conj acc value)
                   acc))) []
             (range (int start-row) (inc (int end-row))))))
 
@@ -38,7 +38,7 @@
               (into acc (unpack-range (s/trim el) all-values))
               ; Else
               (if (> (count (str (get-coord-value all-values (s/trim el)))) 0)
-                (conj acc (int (get-coord-value all-values (s/trim el))))
+                (conj acc (get-coord-value all-values (s/trim el)))
                 ; Return acc
                 acc))) [] args))
 
@@ -53,12 +53,13 @@
                 (into acc
                       (map #(str letter %)
                            (range (int start-row) (inc (int end-row))))))
-              (if (> (int el) 0)
+              (if (> (count (str el)) 0)
                 (conj acc (s/trim el))
                 ; Return acc 
                 acc)))
           [] args))
 
+; Run a formula with the args provided
 (defn compute-formula [formula all-values update-formula-cell-map coord]
   (if (> (count formula) 3)
     (if-let [op (get operations (keyword (subs formula 1 4)))]
@@ -68,5 +69,5 @@
           (let [args
                 (s/split (s/trim (subs formula arg-start arg-end)) #",")]
             (update-formula-cell-map coord (get-formula-cells args))
-            (op
-             (vec (map-coords-to-values args all-values)))))))))
+            (.toFixed (op
+                       (vec (map-coords-to-values args all-values))) 2)))))))
