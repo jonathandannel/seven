@@ -121,7 +121,7 @@
      [:div.box.mt-5.mb-2.p-0 {:style {:position "relative" :width "fit-content"}}
       [:div.modal {:class (if @history-paused-at "is-active") :style {:position "absolute"}}
        [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
-       [:div.modal-content {:style {:width "100%"}}
+       [:div.modal-content.p-1 {:style {:width "100%"}}
         [:div.panel.container.is-info {:style {:background "white" :width "50%"}}
          [:div.panel-heading.is-size-6 "Resize circle"]
          [:div.panel-block
