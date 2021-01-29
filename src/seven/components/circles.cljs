@@ -102,7 +102,7 @@
   (reset! current-history-index 0))
 
 (def window-width (.-innerWidth js/window))
-(def is-mobile (< window-width 700))
+(def small-screen (< window-width 1000))
 
 (defn main []
   [component-wrapper "Circle drawer"
@@ -118,7 +118,7 @@
       [:span.icon
        [:i.fas.fa-trash]]]]
     [:div.container
-     [:div.box.mt-5.p-0 {:style {:position "relative" :width "fit-content"}}
+     [:div.box.mt-5.mb-2.p-0 {:style {:position "relative" :width "fit-content"}}
       [:div.modal {:class (if @history-paused-at "is-active") :style {:position "absolute"}}
        [:div.modal-background {:style {:background "transparent"} :on-click remove-erroneous-history}]
        [:div.modal-content {:style {:width "100%"}}
@@ -129,4 +129,4 @@
            [:div.control
             [:div.container
              [:input {:style {:width "100%"} :on-change edit-circle :type "range" :value @chosen-radius :step 1 :min 3 :max 120}]]]]]]]]
-      [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (if is-mobile (* window-width 0.7) 800) :height (if is-mobile (* window-width 0.7 1.333 0.7) 600)}]]]]])
+      [:canvas {:on-context-menu (if (> (count @all-paths) 0) start-updating) :on-click draw-circle :on-mouse-move get-cursor-path  :width (if small-screen (* window-width 0.67) 800) :height (if small-screen (* window-width 0.67 1.333 0.67) 600)}]]]]])

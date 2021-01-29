@@ -11,7 +11,7 @@
 
 (def components [["Counter" counter/main]
                  ["Temperature" temperature/main]
-                 ["Flight" flight/main]
+                 ["Flight Booker" flight/main]
                  ["Timer" timer/main]
                  ["CRUD" crud/main]
                  ["Circles" circles/main]
@@ -25,7 +25,7 @@
 (defn root []
   (let [active-tab @active-tab]
     [:<>
-     [:div.tabs.is-toggle.is-boxed.is-centered
+     [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width
       [:ul
        (map-indexed
         (fn [index [component-name]]

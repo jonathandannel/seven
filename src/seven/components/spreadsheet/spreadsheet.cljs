@@ -13,7 +13,7 @@
 (def showing-formula-value (r/atom {}))
 
 (def a-to-z (map char (range 97 123)))
-(def numbers (vec (range 51)))
+(def numbers (vec (range 101)))
 
 (defn set-active-cell [e]
   (reset! active-cell-id (-> e .-target .-id)))
