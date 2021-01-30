@@ -96,6 +96,7 @@
                      [:input.input.spreadsheet-input.spreadsheet-input-textarea
                       {:key (str "spreadsheet-input-key-" id)
                        :id id
+                       :class (if (and @is-editing active computed) " formula-input-val" "")
                        :on-key-down #(if (= (-> % .-key) "Enter")
                                        (handle-cell-change % :reset))
                        :auto-focus true

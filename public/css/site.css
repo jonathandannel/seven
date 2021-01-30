@@ -37,7 +37,8 @@ ul {
 }
 
 td {
-  padding: 0
+  padding: 0;
+  border: 1px solid lightgrey;
 }
 
 tr {
@@ -60,33 +61,21 @@ input:focus {
 
 .spreadsheet-input-base, .spreadsheet-input-display {
   border-radius: 0;
-  width: 125px;
+  border: none;
+  width: 120px;
   padding: 0;
   margin: 0;
   text-align: center;
-  border-color: lightgrey !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
-
-
-.spreadsheet-input-base:focus {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
-.spreadsheet-input-display:focus {
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-}
 .spreadsheet-input-textarea {
   border-radius: 0
 }
 
 .spreadsheet-input:focus {
-  border: 2px solid black;
+  border: 1px solid #3298dc;
   box-shadow: none;
   outline: none !important;
 }
@@ -105,17 +94,18 @@ input:focus {
   text-transform: uppercase;
 }
 
-.active-cell {
-  border: 1px solid grey !important;
-  box-shadow: none !important;
-}
 
 .spreadsheet-active-letter, .spreadsheet-active-number {
   background: #ececec;
 }
 
 .computed-cell-val {
-  border: 2px solid #00c4a7 !important;
+  border: 1px solid #00c4a7 !important;
+  font-weight: 600;
+}
+
+.formula-input-val {
+  border: 1px solid lightpink !important;
   font-weight: 600;
 }
 
