@@ -98,28 +98,25 @@
                                             (if (not show-form-val)
                                               (reset! is-editing true)))}
                    (if (or (not @is-editing) (not (= id @active-cell-id)))
-                     [:span.input
-                      {:on-double-click (fn []
-                                          (reset! is-editing false)
-                                          (toggle-show-formula id))
-                       :on-mouse-down #(reset! is-editing true)
-                       :style {:display "flex" :justify-content "center"}
-                       :class (str
-                               "spreadsheet-input"
-                               (if computed
-                                 (if show-form-val
-                                   " cell-formula" " cell-val")
-                                 "")
-                               (if (= id active-cell-id)
-                                 " active-cell"))}
-                      (if show-form-val
-                        computed
-                        value)])
-                   (if (and @is-editing (= id @active-cell-id) (not show-form-val))
+                     [:span.input {:on-mouse-down #(reset! is-editing true)
+                                   :style {:display "flex" :justify-content "center"}
+                                   :class (str
+                                           "spreadsheet-input"
+                                           (if computed
+                                             (if show-form-val
+                                               " cell-formula" " cell-val")
+                                             "")
+                                           (if (= id active-cell-id)
+                                             " active-cell"))}
+                      (or computed
+                          value)])
+                   (if (and @is-editing (= id @active-cell-id))
                      [:input.input
                       {:key (str "spreadsheet-input-key-" id)
                        :id id
                        :style {:display "flex" :justify-content "center" :text-align "center"}
+                       :on-double-click (fn []
+                                          (toggle-show-formula id))
                        :on-key-down (fn [e]
                                       (if (= (-> e .-key) "Enter")
                                         (handle-cell-change e)))
