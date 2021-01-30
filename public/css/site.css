@@ -44,6 +44,10 @@ tr {
   text-align: center;
 }
 
+.component {
+  margin-top: 3em;
+}
+
 .spreadsheet-container {
   max-height: 500px;
   overflow: scroll;
@@ -51,7 +55,7 @@ tr {
 
 .spreadsheet-input {
   border-radius: 0;
-  width: 100px;
+  width: 125px;
   padding: 0;
   margin: 0;
   text-align: center;

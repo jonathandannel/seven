@@ -24,8 +24,8 @@
 
 (defn root []
   (let [active-tab @active-tab]
-    [:div.container {:style {:max-width 700}}
-     [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width
+    [:div.container {:style {:max-width 900}}
+     [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width.mb-5
       [:ul
        (map-indexed
         (fn [index [component-name]]
