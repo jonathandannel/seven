@@ -4,16 +4,11 @@
 
 (def active-cell-id (r/atom nil))
 (def cell-values (r/atom {}))
-
-; K (formula) V (cell args)
-; Ex: {:b2 ["a1" "a2" "a3"]}
 (def formula-cell-map (r/atom {}))
-
-; Which cells should show plain :value rather than :computed
 (def showing-formula-value (r/atom {}))
 
 (def a-to-z (map char (range 97 123)))
-(def numbers (vec (range 51)))
+(def numbers (vec (range 101)))
 
 (defn set-active-cell [e]
   (reset! active-cell-id (-> e .-target .-id)))
@@ -21,12 +16,7 @@
 (defn update-formula-cell-map [coord cells]
   (swap! formula-cell-map assoc (keyword coord) cells))
 
-(defn change-cell-value [coord value]
-  (if (< (count value) 1)
-    (do
-      (swap! showing-formula-value dissoc (keyword coord))
-      (swap! cell-values assoc-in [(keyword coord) :computed] nil)))
-  ; Read function syntax and compute
+(defn recompute-fn-cell [coord value]
   (if (util/is-function value)
     (swap! cell-values assoc-in [(keyword coord) :computed]
            (util/compute-formula
@@ -34,11 +24,6 @@
             @cell-values
             update-formula-cell-map
             coord)))
-  ; Just handle changing the literal text value of a cell
-  (swap! cell-values assoc-in [(keyword coord) :value] value)
-
-  ; If not a formula cell 
-  ; Check if cell belongs to a function, if so recompute function
   (doseq [[k v] @formula-cell-map]
     (if (some #(= coord %) v)
       (swap! cell-values assoc-in [(keyword k) :computed]
@@ -48,10 +33,18 @@
               update-formula-cell-map
               k)))))
 
+(defn change-cell-value [coord value]
+  (swap! cell-values assoc-in [(keyword coord) :value] value)
+  (if (< (count value) 1)
+    (do
+      (swap! showing-formula-value dissoc (keyword coord))
+      (swap! cell-values assoc-in [(keyword coord) :computed] nil)))
+  ; Check if cell is or belongs to a function, act accordingly
+  (recompute-fn-cell coord value))
+
 (defn handle-cell-change [e]
   (change-cell-value (-> e .-target .-id) (-> e .-target .-value)))
 
-; Set whether a cell shows its formula or value
 (defn toggle-show-formula [id]
   (if (get-in @cell-values [(keyword id) :computed])
     (if ((keyword id) @showing-formula-value)
@@ -59,53 +52,60 @@
       (swap! showing-formula-value assoc (keyword id) true))))
 
 (defn main []
-  (let [active-cell @active-cell-id
-        showing-formula-value @showing-formula-value
-        cell-values @cell-values]
-    [:div {:class "card"}
-     [:div {:class "card-header"}
-      [:div {:class "card-header-title"}
-       "Cells"]]
-     [:div.spreadsheet-container
-      [:table
-       [:thead
-        [:tr
-         [:th.spreadsheet-title-letter {:key "spacer"} ""]
-         (map (fn [x]
-                [:th.spreadsheet-title-letter
-                 {:key (str "title-" x)
-                  :class
-                  (if (= x (first active-cell))
-                    "spreadsheet-active-letter")}  x])
-              a-to-z)]]
-       [:tbody
-        (map (fn [number]
-               [:tr {:key (str "row-" "number-" number)}
-                [:th.spreadsheet-title-number
-                 {:key (str "title-" number)
-                  :class
-                  (if (= number (int (last active-cell)))
-                    "spreadsheet-active-number")}  number]
-                (map (fn [letter]
-                       (let [id (str letter number)]
-                         [:td {:key (str "cell-td-" id)}
-                          [:input.input
-                           {:key (str "spreadsheet-input-key-" id)
-                            :id id
-                            :value
-                            (if (get showing-formula-value (keyword id))
-                              (get-in cell-values [(keyword id) :computed])
-                              (get-in cell-values [(keyword id) :value]))
-                            :on-change handle-cell-change
-                            :on-double-click #(toggle-show-formula id)
-                            :on-focus set-active-cell
-                            :class (str
-                                    "spreadsheet-input"
-                                    (if (get-in cell-values [(keyword id) :computed])
-                                      (if (get showing-formula-value (keyword id))
-                                        " cell-formula" " cell-val")
-                                      "")
-                                    (if (= id active-cell)
-                                      " active-cell"))}]]))
-                     a-to-z)])
-             numbers)]]]]))
+  [:div {:class "card"}
+   [:div {:class "card-header"}
+    [:div {:class "card-header-title"}
+     "Cells"]]
+   [:div.spreadsheet-container
+    [:table
+     [:thead
+      [:tr
+       [:th.spreadsheet-title-letter {:key "spacer"} ""]
+       (doall
+        (map
+         (fn [x]
+           [:th.spreadsheet-title-letter
+            {:key (str "title-" x)
+             :class
+             (if (= x (first @active-cell-id))
+               "spreadsheet-active-letter")}  x])
+         a-to-z))]]
+     [:tbody
+      (doall
+       (map
+        (fn [number]
+          [:tr {:key (str "row-" "number-" number)}
+           [:th.spreadsheet-title-number
+            {:key (str "title-" number)
+             :class
+             (if (= number (int (last @active-cell-id)))
+               "spreadsheet-active-number")}  number]
+           (doall
+            (map
+             (fn [letter]
+               (let [id (str letter number)
+                     cell (get @cell-values (keyword id))
+                     value (get cell :value)
+                     computed (get cell :computed)
+                     showing-formula-value (get @showing-formula-value (keyword id))]
+                 [:td {:key (str "cell-td-" id)}
+                  [:input.input
+                   {:key (str "spreadsheet-input-key-" id)
+                    :id id
+                    :value
+                    (if showing-formula-value
+                      computed
+                      value)
+                    :on-change handle-cell-change
+                    :on-double-click #(toggle-show-formula id)
+                    :on-focus set-active-cell
+                    :class (str
+                            "spreadsheet-input"
+                            (if computed
+                              (if showing-formula-value
+                                " cell-formula" " cell-val")
+                              "")
+                            (if (= id active-cell-id)
+                              " active-cell"))}]]))
+             a-to-z))])
+        numbers))]]]])
