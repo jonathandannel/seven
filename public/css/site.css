@@ -44,6 +44,11 @@ tr {
   text-align: center;
 }
 
+input:focus {
+  outline: none;
+  border: none;
+}
+
 .component {
   margin-top: 3em;
 }
@@ -53,18 +58,37 @@ tr {
   overflow: scroll;
 }
 
-.spreadsheet-input {
+.spreadsheet-input-base, .spreadsheet-input-display {
   border-radius: 0;
   width: 125px;
   padding: 0;
   margin: 0;
   text-align: center;
+  border-color: lightgrey !important;
   box-shadow: none !important;
+  outline: none !important;
+}
+
+
+
+.spreadsheet-input-base:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.spreadsheet-input-display:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.spreadsheet-input-textarea {
+  border-radius: 0
 }
 
 .spreadsheet-input:focus {
-  border: 1px solid black;
+  border: 2px solid black;
   box-shadow: none;
+  outline: none !important;
 }
 
 .spreadsheet-title-number {

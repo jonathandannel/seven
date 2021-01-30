@@ -86,9 +86,9 @@
                      computed (get cell :computed)
                      active (= id @active-cell-id)]
                  [:td {:key (str "cell-td-" id)}
-                  [:span.input.spreadsheet-input {:on-click #(edit-cell id)}
+                  [:span.input.spreadsheet-input-base {:on-click #(edit-cell id)}
                    (if (or (not @is-editing) (not active))
-                     [:span.input.is-flex.is-justify-content-center.spreadsheet-input
+                     [:span.input.is-flex.is-justify-content-center.spreadsheet-input-display
                       {:on-mouse-down #(reset! is-editing true)
                        :class (if computed " computed-cell-val" "")}
                       (or computed value)])
