@@ -6,6 +6,7 @@
 (def cell-values (r/atom {}))
 (def formula-cell-map (r/atom {}))
 (def showing-formula-value (r/atom {}))
+(def is-editing (r/atom false))
 
 (def a-to-z (map char (range 97 123)))
 (def numbers (vec (range 101)))
@@ -51,6 +52,8 @@
       (swap! showing-formula-value dissoc (keyword id))
       (swap! showing-formula-value assoc (keyword id) true))))
 
+(add-watch cell-values :cvwatch #(print %4))
+
 (defn main []
   [:div {:class "card"}
    [:div {:class "card-header"}
@@ -87,25 +90,53 @@
                      cell (get @cell-values (keyword id))
                      value (get cell :value)
                      computed (get cell :computed)
-                     showing-formula-value (get @showing-formula-value (keyword id))]
+                     show-form-val (get @showing-formula-value (keyword id))]
                  [:td {:key (str "cell-td-" id)}
-                  [:input.input
-                   {:key (str "spreadsheet-input-key-" id)
-                    :id id
-                    :value
-                    (if showing-formula-value
-                      computed
-                      value)
-                    :on-change handle-cell-change
-                    :on-double-click #(toggle-show-formula id)
-                    :on-focus set-active-cell
-                    :class (str
-                            "spreadsheet-input"
-                            (if computed
-                              (if showing-formula-value
-                                " cell-formula" " cell-val")
-                              "")
-                            (if (= id active-cell-id)
-                              " active-cell"))}]]))
+                  [:span.input {:class "spreadsheet-input"
+                                :on-click (fn []
+                                            (reset! active-cell-id id)
+                                            (if (not show-form-val)
+                                              (reset! is-editing true)))}
+                   (if (or (not @is-editing) (not (= id @active-cell-id)))
+                     [:span.input
+                      {:on-double-click (fn []
+                                          (reset! is-editing false)
+                                          (toggle-show-formula id))
+                       :on-mouse-down #(reset! is-editing true)
+                       :style {:display "flex" :justify-content "center"}
+                       :class (str
+                               "spreadsheet-input"
+                               (if computed
+                                 (if show-form-val
+                                   " cell-formula" " cell-val")
+                                 "")
+                               (if (= id active-cell-id)
+                                 " active-cell"))}
+                      (if show-form-val
+                        computed
+                        value)])
+                   (if (and @is-editing (= id @active-cell-id) (not show-form-val))
+                     [:input.input
+                      {:key (str "spreadsheet-input-key-" id)
+                       :id id
+                       :style {:display "flex" :justify-content "center" :text-align "center"}
+                       :on-key-down (fn [e]
+                                      (if (= (-> e .-key) "Enter")
+                                        (handle-cell-change e)))
+                       :auto-focus true
+                       :default-value value
+                       :on-blur (fn [e]
+                                  (if (not show-form-val)
+                                    (do
+                                      (handle-cell-change e)
+                                      (reset! is-editing false))))
+                       :class (str
+                               "spreadsheet-input"
+                               (if computed
+                                 (if showing-formula-value
+                                   " cell-formula" " cell-val")
+                                 "")
+                               (if (= id active-cell-id)
+                                 " active-cell"))}])]]))
              a-to-z))])
         numbers))]]]])
