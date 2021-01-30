@@ -55,6 +55,7 @@ tr {
   padding: 0;
   margin: 0;
   text-align: center;
+  box-shadow: none !important;
 }
 
 .spreadsheet-input:focus {
@@ -77,8 +78,7 @@ tr {
 }
 
 .active-cell {
-  border-radius: 2;
-  border: 2px solid grey !important;
+  border: 1px solid grey !important;
   box-shadow: none !important;
 }
 
@@ -86,13 +86,14 @@ tr {
   background: #ececec;
 }
 
-.cell-formula {
+.computed-cell-val {
   border: 2px solid #00c4a7 !important;
   font-weight: 600;
 }
 
-.cell-val {
-  border: 2px solid #ff879f !important;
-  font-weight: 600;
+.spreadsheet-input-textarea {
+  display: flex;
+  justify-content: center;
+  text-align: center;
 }
 

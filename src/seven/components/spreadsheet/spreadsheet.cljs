@@ -5,7 +5,6 @@
 (def active-cell-id (r/atom nil))
 (def cell-values (r/atom {}))
 (def formula-cell-map (r/atom {}))
-(def showing-formula-value (r/atom {}))
 (def is-editing (r/atom false))
 
 (def a-to-z (map char (range 97 123)))
@@ -34,25 +33,20 @@
               update-formula-cell-map
               k)))))
 
+(defn edit-cell [coord]
+  (reset! active-cell-id coord)
+  (reset! is-editing true))
+
 (defn change-cell-value [coord value]
   (swap! cell-values assoc-in [(keyword coord) :value] value)
   (if (< (count value) 1)
-    (do
-      (swap! showing-formula-value dissoc (keyword coord))
-      (swap! cell-values assoc-in [(keyword coord) :computed] nil)))
-  ; Check if cell is or belongs to a function, act accordingly
+    (swap! cell-values assoc-in [(keyword coord) :computed] nil))
   (recompute-fn-cell coord value))
 
-(defn handle-cell-change [e]
-  (change-cell-value (-> e .-target .-id) (-> e .-target .-value)))
-
-(defn toggle-show-formula [id]
-  (if (get-in @cell-values [(keyword id) :computed])
-    (if ((keyword id) @showing-formula-value)
-      (swap! showing-formula-value dissoc (keyword id))
-      (swap! showing-formula-value assoc (keyword id) true))))
-
-(add-watch cell-values :cvwatch #(print %4))
+(defn handle-cell-change [e reset-active?]
+  (change-cell-value (-> e .-target .-id) (-> e .-target .-value))
+  (reset! is-editing false)
+  (if reset-active? (reset! active-cell-id nil)))
 
 (defn main []
   [:div {:class "card"}
@@ -81,8 +75,8 @@
            [:th.spreadsheet-title-number
             {:key (str "title-" number)
              :class
-             (if (= number (int (last @active-cell-id)))
-               "spreadsheet-active-number")}  number]
+             (if (and @active-cell-id (= number (int (last @active-cell-id))))
+               "spreadsheet-active-number")} number]
            (doall
             (map
              (fn [letter]
@@ -90,50 +84,22 @@
                      cell (get @cell-values (keyword id))
                      value (get cell :value)
                      computed (get cell :computed)
-                     show-form-val (get @showing-formula-value (keyword id))]
+                     active (= id @active-cell-id)]
                  [:td {:key (str "cell-td-" id)}
-                  [:span.input {:class "spreadsheet-input"
-                                :on-click (fn []
-                                            (reset! active-cell-id id)
-                                            (if (not show-form-val)
-                                              (reset! is-editing true)))}
-                   (if (or (not @is-editing) (not (= id @active-cell-id)))
-                     [:span.input {:on-mouse-down #(reset! is-editing true)
-                                   :style {:display "flex" :justify-content "center"}
-                                   :class (str
-                                           "spreadsheet-input"
-                                           (if computed
-                                             (if show-form-val
-                                               " cell-formula" " cell-val")
-                                             "")
-                                           (if (= id active-cell-id)
-                                             " active-cell"))}
-                      (or computed
-                          value)])
-                   (if (and @is-editing (= id @active-cell-id))
-                     [:input.input
+                  [:span.input.spreadsheet-input {:on-click #(edit-cell id)}
+                   (if (or (not @is-editing) (not active))
+                     [:span.input.is-flex.is-justify-content-center.spreadsheet-input
+                      {:on-mouse-down #(reset! is-editing true)
+                       :class (if computed " computed-cell-val" "")}
+                      (or computed value)])
+                   (if (and @is-editing active)
+                     [:input.input.spreadsheet-input.spreadsheet-input-textarea
                       {:key (str "spreadsheet-input-key-" id)
                        :id id
-                       :style {:display "flex" :justify-content "center" :text-align "center"}
-                       :on-double-click (fn []
-                                          (toggle-show-formula id))
-                       :on-key-down (fn [e]
-                                      (if (= (-> e .-key) "Enter")
-                                        (handle-cell-change e)))
+                       :on-key-down #(if (= (-> % .-key) "Enter")
+                                       (handle-cell-change % :reset))
                        :auto-focus true
                        :default-value value
-                       :on-blur (fn [e]
-                                  (if (not show-form-val)
-                                    (do
-                                      (handle-cell-change e)
-                                      (reset! is-editing false))))
-                       :class (str
-                               "spreadsheet-input"
-                               (if computed
-                                 (if showing-formula-value
-                                   " cell-formula" " cell-val")
-                                 "")
-                               (if (= id active-cell-id)
-                                 " active-cell"))}])]]))
+                       :on-blur handle-cell-change}])]]))
              a-to-z))])
         numbers))]]]])
