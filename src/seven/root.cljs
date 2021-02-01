@@ -9,26 +9,26 @@
    [seven.components.circles :as circles]
    [seven.components.spreadsheet :as spreadsheet]))
 
-(def components [["Counter" counter/main]
-                 ["Temperature" temperature/main]
-                 ["Flight Booker" flight/main]
-                 ["Timer" timer/main]
-                 ["CRUD" crud/main]
-                 ["Circles" circles/main]
-                 ["Spreadsheet" spreadsheet/main]])
+(def components [{:name "Counter" :component counter/main}
+                 {:name "Temperature" :component temperature/main}
+                 {:name "Flight Booker" :component flight/main}
+                 {:name "Timer" :component timer/main}
+                 {:name "Crud" :component crud/main}
+                 {:name "Circles" :component circles/main}
+                 {:name "Spreadsheet" :component spreadsheet/main}])
 
 (def active-tab (r/atom 0))
 
-(defn change-tab [index]
-  (reset! active-tab index))
-
 (defn root []
-  (let [active-tab @active-tab]
-    [:div.container {:style {:max-width 900}}
-     [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width.mb-5
-      [:ul
-       (map-indexed
-        (fn [index [component-name]]
-          [:li {:key (str "component-" index) :class (if (= index active-tab) "is-active" "") :on-click #(change-tab index)}
-           [:a component-name]]) components)]]
-     ((last (get components active-tab)))]))
+  [:div.container.root-container
+   [:div.tabs.is-toggle.is-boxed.is-centered.is-full-width.mb-5
+    [:ul
+     (doall
+      (map-indexed
+       (fn [index {component-name :name}]
+         [:li
+          {:key (str "component-" index)
+           :class (when (= index @active-tab) "is-active")
+           :on-click #(reset! active-tab index)}
+          [:a component-name]]) components))]]
+   (((get components @active-tab) :component))])

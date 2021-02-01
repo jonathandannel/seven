@@ -31,7 +31,8 @@
 
 ; Stop the clock if we've reached the chosen duration
 (add-watch state :seconds-watcher
-           #(if (>= (@state :elapsed-duration) (@state :chosen-duration))
+           #(when
+             (>= (@state :elapsed-duration) (@state :chosen-duration))
               (js/clearInterval @ticker)))
 
 ; Start timer on mount
@@ -40,23 +41,28 @@
 (defn main []
   [component-wrapper "Timer"
    [:div.content
-    [:progress.progress.is-primary {:value (str (@state :elapsed-duration))
-                                    :max (str (@state :chosen-duration))}]
+    [:progress.progress.is-primary
+     {:value (str (@state :elapsed-duration))
+      :max (str (@state :chosen-duration))}]
     [:div.is-flex
      [:h5.subtitle.is-5.mr-2 (format-sec (@state :elapsed-duration))]
-     (if (>= (@state :elapsed-duration) (@state :chosen-duration)) [:span.icon.is-small.ml-2.pt-1.has-text-success [:i.fas.fa-check]])]
-    [:input {:type "range"
-             :on-change handle-duration-change
-             :style {:width "100%"}
-             :step 1
-             :min 0
-             :max (@state :max-duration)}]
-
+     (when
+      (>= (@state :elapsed-duration) (@state :chosen-duration))
+       [:span.icon.is-small.ml-2.pt-1.has-text-success
+        [:i.fas.fa-check]])]
+    [:input.fullwidth
+     {:type "range"
+      :on-change handle-duration-change
+      :step 1
+      :min 0
+      :max (@state :max-duration)}]
     [:div.block]
     [:span.tag.is-info.is-medium.p-4
-     [:span.icon.mr-1 {:style {:padding-bottom 2}}
+     [:span.icon.mr-1.pb-1
       [:i.fas.fa-info]]
      "Timer set for "
      (format-sec (@state :chosen-duration))]
     [:div.block]
-    [:button.button.is-primary {:on-click reset-timer} "Reset"]]])
+    [:button.button.is-primary
+     {:on-click reset-timer}
+     "Reset"]]])

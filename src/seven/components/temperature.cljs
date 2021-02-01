@@ -11,7 +11,7 @@
   (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
-  ; Set temp k/v pair and convert the other
+  ; Set a temp's value and convert the other
   (let [k (-> e .-target .-name)
         v (-> e .-target .-value)]
     (cond
@@ -22,7 +22,6 @@
       (= k "c")
       (reset! state {:c v :f (to-f v)}))))
 
-; Easily replace input value without needing to delete/backspace
 (defn select-all [e]
   (.select (.-target e)))
 
@@ -30,12 +29,13 @@
   [:div.field
    [:label.label (if (= t "f") "Fahrenheit" "Celsius")]
    [:div.control
-    [:input.input.is-primary {:type "number"
-                              :name t
-                              :placeholder (str "°" t)
-                              :value ((keyword t) @state)
-                              :on-focus select-all
-                              :on-change handle-change}]]])
+    [:input.input.is-primary
+     {:type "number"
+      :name t
+      :placeholder (str "°" t)
+      :value ((keyword t) @state)
+      :on-focus select-all
+      :on-change handle-change}]]])
 
 (defn main []
   [component-wrapper "Temperature converter"

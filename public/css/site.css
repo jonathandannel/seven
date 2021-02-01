@@ -50,6 +50,15 @@ input:focus {
   border: none;
 }
 
+.fullwidth {
+  width: 100%;
+}
+
+.root-container {
+  max-width: 900px;
+}
+
+
 .component {
   margin-top: 3em;
 }

@@ -74,7 +74,7 @@
            "Date must be in the future"
            "Return date must be after depart date")])])
 
-; TODO: Create a generalized input component
+; TODO: Create one generalized input component
 (defn main []
   [component-wrapper "Flight booker"
    [:div.content
@@ -89,25 +89,28 @@
      [:label.label "Depart"]
      [:div.control
       [render-errors :depart-date]
-      [:input {:class (str "input"
-                           (if (field-has-errors? :depart-date)
-                             " is-danger"))
-               :value (-> @state :depart-date :value)
-               :key "depart-input"
-               :on-change handle-date-change
-               :name "depart"
-               :type "text" :placeholder "ex: 02/31/2021"}]]]
+      [:input.input
+       {:class
+        (when (field-has-errors? :depart-date)
+          " is-danger")
+        :value (-> @state :depart-date :value)
+        :key "depart-input"
+        :on-change handle-date-change
+        :name "depart"
+        :type "text"
+        :placeholder "ex: 02/31/2021"}]]]
     [:div.field
      [:label.label "Return"]
      [:div.control
       [render-errors :return-date]
-      [:input {:class (str "input" (if (field-has-errors? :return-date) " is-danger"))
-               :key "return-input"
-               :value (-> @state :return-date :value)
-               :on-change handle-date-change
-               :name "return"
-               :disabled (= (int (@state :active-option)) 1)
-               :type "text" :placeholder "ex: 03/08/2021"}]]]
+      [:input.input
+       {:class (when (field-has-errors? :return-date) " is-danger")
+        :key "return-input"
+        :value (-> @state :return-date :value)
+        :on-change handle-date-change
+        :name "return"
+        :disabled (= (int (@state :active-option)) 1)
+        :type "text" :placeholder "ex: 03/08/2021"}]]]
     [:div.block]
     [:div.field
      [:div.control
