@@ -24,18 +24,28 @@
 (defn check-errors [field value]
   (let [char-err (util/bad-chars? value)
         format-err (util/bad-format? value)]
+    ; Check char and formatting errors
     (set-field-error field :chars char-err)
     (set-field-error field :format format-err)
     (if (not (or char-err format-err (< (count value) 1)))
       (cond
+        ; Check depart date specific errors
         (= field :depart-date)
-        (set-field-error field :invalid (util/bad-start-date? value))
+        (set-field-error
+         field
+         :invalid
+         (util/bad-start-date? value))
+        ; Check return date specific errors
         (= field :return-date)
-        (set-field-error field :invalid (util/bad-return-date? @depart-state-value value)))
-      ; Remove the invalid error when date isn't fully entered again
+        (set-field-error
+         field
+         :invalid
+         (util/bad-return-date? @depart-state-value value)))
+      ; Or remove the invalid error when date isn't fully entered again
       (set-field-error field :invalid false))))
 
-; Pass state values to `check-errors` after change
+; Pass state values to `check-errors` 
+; %4 arg is the cursor state after change
 (add-watch depart-state-value :depart-value-watcher
            #(check-errors :depart-date %4))
 (add-watch return-state-value :return-value-watcher
@@ -91,7 +101,8 @@
       [render-errors :depart-date]
       [:input.input
        {:class
-        (when (field-has-errors? :depart-date)
+        (when
+         (field-has-errors? :depart-date)
           " is-danger")
         :value (-> @state :depart-date :value)
         :key "depart-input"
@@ -104,11 +115,13 @@
      [:div.control
       [render-errors :return-date]
       [:input.input
-       {:class (when (field-has-errors? :return-date) " is-danger")
-        :key "return-input"
+       {:key "return-input"
         :value (-> @state :return-date :value)
         :on-change handle-date-change
         :name "return"
+        :class (when
+                (field-has-errors? :return-date)
+                 " is-danger")
         :disabled (= (int (@state :active-option)) 1)
         :type "text" :placeholder "ex: 03/08/2021"}]]]
     [:div.block]

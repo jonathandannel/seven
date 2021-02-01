@@ -6,7 +6,7 @@
 (defonce name-list (r/atom
                     [{:first-name "Jonathan" :last-name "Dannel"}
                      {:first-name "Bardia" :last-name "Pourvakil"}
-                     {:first-name "Musashi" :last-name "Miyamoto"}]))
+                     {:first-name "Conor" :last-name "Sullivan"}]))
 
 (defonce filter-query (r/atom ""))
 (defonce active-name (r/atom {:first-name "Jonathan" :last-name "Dannel"}))
@@ -17,20 +17,21 @@
   (reset! updating person))
 
 (defn can-create? [n]
-  (not (boolean (some #(= n %) @name-list))))
+  (not (some #(= n %) @name-list)))
 
 (defn create-entry []
   (let [first-name (@active-name :first-name)
         last-name (@active-name :last-name)]
-    (if (and
-         (not= first-name "")
-         (not= last-name "")
-         (can-create? @active-name))
-      (swap! name-list conj {:first-name first-name :last-name last-name}))))
+    (when (and
+           (not= first-name "")
+           (not= last-name "")
+           (can-create? @active-name))
+      (swap! name-list conj
+             {:first-name first-name :last-name last-name}))))
 
 (defn update-entry []
   (let [index (.indexOf @name-list @updating)]
-    (if (can-create? @active-name)
+    (when (can-create? @active-name)
       (swap! name-list assoc index @active-name))
     (select-name @active-name)))
 
@@ -41,15 +42,14 @@
 
 (defn filter-entry [curr]
   (let [query-length (count @filter-query)]
-    (if (=
-         (subs (lower-case (get curr :last-name)) 0 query-length)
-         (lower-case @filter-query))
-      true)))
+    (=
+     (subs (lower-case (get curr :last-name)) 0 query-length)
+     (lower-case @filter-query))))
 
 (defn handle-filter-change [e]
   (reset! filter-query (-> e .-target .-value))
   (let [filtered (filterv #(filter-entry %) @name-list)]
-    (if (> (count filtered) 0) (select-name (first filtered)))))
+    (when (> (count filtered) 0) (select-name (first filtered)))))
 
 (defn main []
   [component-wrapper "CRUD"
@@ -65,33 +65,41 @@
     [:div.columns
      ; List
      [:div.column.is-half
-      [:div.menu {:style {:overflow-y "scroll" :height "30vh"}}
+      [:div.menu {:style {:overflow-y "scroll" :height "150px"}}
        [:ul.menu-list.pr-2 {:style {:list-style-type "none" :margin 0}}
         (doall
-         (for [person (filterv #(filter-entry %) @name-list)]
-           (let [first-name (person :first-name)
-                 last-name (person :last-name)]
-             ^{:key (str first-name last-name)}
-             [:li {:on-click #(select-name person)}
-              [:a {:class (if (= @active-name person) "is-active")}
-               first-name " " last-name]])))]]]
+         (for [{:keys [first-name last-name] :as person}
+               (filterv #(filter-entry %) @name-list)]
+           ^{:key (str first-name last-name)}
+           [:li {:on-click #(select-name person)}
+            [:a
+             {:class (when (= @active-name person)
+                       "is-active")}
+             first-name " "
+             last-name]]))]]]
       ; Right side edit
      [:div.column.is-half
       [:div.columns
-       [:div.column.is-one-quarter.mr-4.is-hidden-mobile
+       [:div.column.is-one-quarter.mr-5.is-hidden-mobile
         [:div.is-flex.is-flex-direction-column
          [:label.label.pt-2 "Name"]
-         [:label.label {:style {:padding-top "0.7em"}} "Surname"]]]
+         [:label.label.surname  "Surname"]]]
        [:div.column.auto
         [:div.is-flex.is-flex-direction-column
          [:input.input.mb-2
-          {:on-change #(swap! active-name assoc :first-name (-> % .-target .-value))
+          {:on-change
+           #(swap! active-name assoc :first-name (-> % .-target .-value))
            :value (@active-name :first-name)}]
          [:input.input
-          {:on-change #(swap! active-name assoc :last-name (-> % .-target .-value))
+          {:on-change
+           #(swap! active-name assoc :last-name (-> % .-target .-value))
            :value (@active-name :last-name)}]]]]]]
     ; Bottom buttons
     [:div.is-flex
-     [:button.button.is-primary.mr-3  {:disabled (not (can-create? @active-name)) :on-click create-entry} "Create"]
-     [:button.button.is-primary.mr-3 {:on-click update-entry} "Update"]
-     [:button.button.is-danger.mr-3 {:on-click delete-entry} "Delete"]]]])
+     [:button.button.is-primary.mr-3
+      {:disabled (not (can-create? @active-name))
+       :on-click create-entry} "Create"]
+     [:button.button.is-primary.mr-3
+      {:on-click update-entry} "Update"]
+     [:button.button.is-danger.mr-3
+      {:on-click delete-entry} "Delete"]]]])

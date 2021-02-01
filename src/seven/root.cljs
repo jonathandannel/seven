@@ -13,11 +13,11 @@
                  {:name "Temperature" :component temperature/main}
                  {:name "Flight Booker" :component flight/main}
                  {:name "Timer" :component timer/main}
-                 {:name "Crud" :component crud/main}
+                 {:name "CRUD" :component crud/main}
                  {:name "Circles" :component circles/main}
                  {:name "Spreadsheet" :component spreadsheet/main}])
 
-(def active-tab (r/atom 0))
+(def active-tab (r/atom 6))
 
 (defn root []
   [:div.container.root-container

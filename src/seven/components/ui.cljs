@@ -3,9 +3,14 @@
 (def fullwidth-components ["Circle drawer" "Spreadsheet"])
 
 (defn component-wrapper [title component]
-  [:div.card.container.component {:style {:width (if (some #(= % title) fullwidth-components) "auto" "60%")}}
-   [:div {:class "card-header"}
-    [:div {:class "card-header-title"}
+  [:div.card.container.component
+   {:style
+    {:max-width
+     (if (some #(= % title) fullwidth-components)
+                  "1000px" 
+                  "500px")}}
+   [:div.card-header
+    [:div.card-header-title 
      title]]
-   [:div {:class "card-content"}
+   [:div.card-content  
     component]])

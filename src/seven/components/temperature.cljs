@@ -11,7 +11,6 @@
   (Math.round (* (- n 32) (/ 5 9))))
 
 (defn handle-change [e]
-  ; Set a temp's value and convert the other
   (let [k (-> e .-target .-name)
         v (-> e .-target .-value)]
     (cond

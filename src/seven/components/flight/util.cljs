@@ -1,7 +1,6 @@
 (ns seven.components.flight.util
   (:require [clojure.string :as s]))
 
-; Flight
 (defn split-date [v]
   (s/split v #"/"))
 
@@ -37,5 +36,3 @@
       (and (= return-year depart-year)
            (and (= return-month depart-month) (< return-day depart-day))) true
       :else false)))
-
-; Spreadsheet

@@ -36,6 +36,7 @@ ul {
   list-style-type: none
 }
 
+/*General*/
 td {
   padding: 0;
   border: 1px solid lightgrey;
@@ -43,11 +44,6 @@ td {
 
 tr {
   text-align: center;
-}
-
-input:focus {
-  outline: none;
-  border: none;
 }
 
 .fullwidth {
@@ -62,6 +58,41 @@ input:focus {
 .component {
   margin-top: 3em;
 }
+
+
+ /*Crud*/
+
+.surname {
+  padding-top: 0.7em
+}
+
+ /*Circles*/
+
+.canvas-box {
+  position: relative;
+  width: fit-content;
+}
+
+.canvas-modal {
+  position: absolute;
+}
+
+.canvas-modal-background{
+  background: transparent;
+}
+
+.canvas-modal-panel {
+  background: white;
+  width: 50%;
+}
+
+.canvas-modal-field {
+  width: 100%;
+  background: white;
+}
+
+
+ /*Spreadsheet*/
 
 .spreadsheet-container {
   max-height: 500px;

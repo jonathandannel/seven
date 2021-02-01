@@ -16,8 +16,8 @@
 (defn update-formula-cell-map [coord cells]
   (swap! formula-cell-map assoc (keyword coord) cells))
 
-(defn recompute-fn-cell [coord value]
-  (if (util/is-function value)
+(defn recompute-formula-cells [coord value]
+  (when (util/is-function value)
     (swap! cell-values assoc-in [(keyword coord) :computed]
            (util/compute-formula
             value
@@ -25,7 +25,7 @@
             update-formula-cell-map
             coord)))
   (doseq [[k v] @formula-cell-map]
-    (if (some #(= coord %) v)
+    (when (some #(= coord %) v)
       (swap! cell-values assoc-in [(keyword k) :computed]
              (util/compute-formula
               (get-in @cell-values [(keyword k) :value])
@@ -39,14 +39,14 @@
 
 (defn change-cell-value [coord value]
   (swap! cell-values assoc-in [(keyword coord) :value] value)
-  (if (< (count value) 1)
+  (when (< (count value) 1)
     (swap! cell-values assoc-in [(keyword coord) :computed] nil))
-  (recompute-fn-cell coord value))
+  (recompute-formula-cells coord value))
 
 (defn handle-cell-change [e reset-active?]
   (change-cell-value (-> e .-target .-id) (-> e .-target .-value))
   (reset! is-editing false)
-  (if reset-active? (reset! active-cell-id nil)))
+  (when reset-active? (reset! active-cell-id nil)))
 
 (defn main []
   [:div {:class "card"}
@@ -60,12 +60,12 @@
        [:th.spreadsheet-title-letter {:key "spacer"} ""]
        (doall
         (map
-         (fn [x]
+         (fn [letter]
            [:th.spreadsheet-title-letter
-            {:key (str "title-" x)
+            {:key (str "title-" letter)
              :class
-             (if (= x (first @active-cell-id))
-               "spreadsheet-active-letter")}  x])
+             (if (= letter (first @active-cell-id))
+               "spreadsheet-active-letter")}  letter])
          a-to-z))]]
      [:tbody
       (doall
@@ -75,8 +75,12 @@
            [:th.spreadsheet-title-number
             {:key (str "title-" number)
              :class
-             (if (and @active-cell-id (= number (int (last @active-cell-id))))
-               "spreadsheet-active-number")} number]
+             (when
+              (and
+               @active-cell-id
+               (= number (int (last @active-cell-id))))
+               "spreadsheet-active-number")}
+            number]
            (doall
             (map
              (fn [letter]
@@ -87,17 +91,20 @@
                      active (= id @active-cell-id)]
                  [:td {:key (str "cell-td-" id)}
                   [:span.input.spreadsheet-input-base {:on-click #(edit-cell id)}
-                   (if (or (not @is-editing) (not active))
+                   (when (or (not @is-editing) (not active))
+                     ; Face value
                      [:span.input.is-flex.is-justify-content-center.spreadsheet-input-display
                       {:on-mouse-down #(reset! is-editing true)
-                       :class (if computed " computed-cell-val" "")}
+                       :class (when computed " computed-cell-val")}
                       (or computed value)])
-                   (if (and @is-editing active)
+                   (when (and @is-editing active)
+                     ; Input
                      [:input.input.spreadsheet-input.spreadsheet-input-textarea
                       {:key (str "spreadsheet-input-key-" id)
                        :id id
-                       :class (if (and @is-editing active computed) " formula-input-val" "")
-                       :on-key-down #(if (= (-> % .-key) "Enter")
+                       :class (when (and @is-editing active computed)
+                                " formula-input-val")
+                       :on-key-down #(when (= (-> % .-key) "Enter")
                                        (handle-cell-change % :reset))
                        :auto-focus true
                        :default-value value

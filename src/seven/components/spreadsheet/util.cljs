@@ -32,18 +32,19 @@
 
 ; Return a list of coord values from coord keys
 ; Ex: [b1, b2, b3] -> [5, 3, 19]
-(defn map-coords-to-values [args all-values]
+(defn get-coord-values [args all-values]
   (reduce (fn [acc el]
             (if (s/includes? el ":")
               (into acc (unpack-range (s/trim el) all-values))
               ; Else
               (if (> (count (str (get-coord-value all-values (s/trim el)))) 0)
                 (conj acc (js/parseFloat (get-coord-value all-values (s/trim el))))
-                ; Return acc
                 acc))) [] args))
 
 ; Cells (args) that should update when a formula is updated
-(defn get-formula-cells [args]
+; Ex: e1: =sum(b3:b6) -> [b3 b4 b5 b6] 
+; Formula map at key e1 will receive this vector so we know what cells to watch
+(defn get-formula-dependency-cells [args]
   (reduce (fn [acc el]
             (if (s/includes? el ":")
               (let [values (s/split el #":")
@@ -54,7 +55,6 @@
                       (map #(str letter %)
                            (range (int start-row) (inc (int end-row))))))
               (conj acc (s/trim el)
-                ; Return acc 
                     acc)))
           [] args))
 
@@ -64,9 +64,11 @@
     (if-let [op (get operations (keyword (subs formula 1 4)))]
       (let [arg-start (inc (s/index-of formula "("))
             arg-end (s/index-of formula ")")]
-        (if (and arg-start arg-end op)
+        (when (and arg-start arg-end op)
           (let [args
                 (s/split (s/trim (subs formula arg-start arg-end)) #",")]
-            (update-formula-cell-map coord (get-formula-cells args))
+            (update-formula-cell-map
+             coord
+             (get-formula-dependency-cells args))
             (.toFixed (op
-                       (vec (map-coords-to-values args all-values))) 2)))))))
+                       (vec (get-coord-values args all-values))) 2)))))))

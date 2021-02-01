@@ -2,7 +2,7 @@
   (:require [reagent.core :as r]
             [seven.components.ui :refer [component-wrapper]]))
 
-(defonce state (r/atom {:elapsed-duration 0 :chosen-duration 60 :max-duration 180}))
+(defonce state (r/atom {:elapsed-duration 0 :chosen-duration 60 :max-duration 90}))
 (defonce ticker (r/atom nil))
 
 (defn handle-duration-change [e]
@@ -44,25 +44,29 @@
     [:progress.progress.is-primary
      {:value (str (@state :elapsed-duration))
       :max (str (@state :chosen-duration))}]
-    [:div.is-flex
-     [:h5.subtitle.is-5.mr-2 (format-sec (@state :elapsed-duration))]
-     (when
-      (>= (@state :elapsed-duration) (@state :chosen-duration))
-       [:span.icon.is-small.ml-2.pt-1.has-text-success
-        [:i.fas.fa-check]])]
+    [:div.is-flex.is-justify-content-center
+     [:h5.subtitle.is-4.mr-2
+      {:class (when
+               (>= (@state :elapsed-duration) (@state :chosen-duration))
+                " has-text-danger")}
+      (format-sec (@state :elapsed-duration))]]
     [:input.fullwidth
      {:type "range"
       :on-change handle-duration-change
+      :disabled
+      (>= (@state :elapsed-duration) (@state :chosen-duration))
       :step 1
       :min 0
       :max (@state :max-duration)}]
     [:div.block]
-    [:span.tag.is-info.is-medium.p-4
-     [:span.icon.mr-1.pb-1
-      [:i.fas.fa-info]]
-     "Timer set for "
-     (format-sec (@state :chosen-duration))]
-    [:div.block]
-    [:button.button.is-primary
-     {:on-click reset-timer}
-     "Reset"]]])
+    [:div.level
+     [:div.level-left
+      [:span.tag.is-info.is-medium.p-4.mt-1
+       [:span.icon.mr-1.pb-1
+        [:i.fas.fa-info]]
+       "Timer set for "
+       (format-sec (@state :chosen-duration))]]
+     [:div.level-right
+      [:button.button.is-primary
+       {:on-click reset-timer}
+       "Reset"]]]]])
