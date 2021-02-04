@@ -50,19 +50,6 @@
 
 (defn main []
   [:<>
-   [:article.message.is-info
-    [:div.message-header "Usage and syntax"]
-    [:div.message-body
-     [:div.container.pl-3
-      [:ul.bulleted
-       [:li [:span "Supported operations: "
-             [:strong "=sum() =sub() =mul() =div() =avg()"]]]
-       [:li [:span "Pass formula arguments as a range "
-             [:strong "(b1:b5),"]
-             " as single cells " [:strong "(c2, d5),"]
-             " or a mix of both " [:strong "(c2:c5, e3)"]]]
-       [:li [:span "Ex: "
-             [:strong "=sum(d1, d2, e1:e5)"]]]]]]]
    [:div {:class "card"}
     [:div {:class "card-header"}
      [:div {:class "card-header-title"}
@@ -104,16 +91,17 @@
                       computed (get cell :computed)
                       active (= id @active-cell-id)]
                   [:td {:key (str "cell-td-" id)}
-                   [:span.input.spreadsheet-input-base {:on-click #(edit-cell id)}
+                   [:span.input.spreadsheet-input-base
+                    {:on-click #(edit-cell id)}
                     (when (or (not @is-editing) (not active))
                      ; Face value
-                      [:span.input.is-flex.is-justify-content-center.spreadsheet-input-display
+                      [:span.input.spreadsheet-input-display
                        {:on-mouse-down #(reset! is-editing true)
                         :class (when computed " computed-cell-val")}
                        (or computed value)])
                     (when (and @is-editing active)
                      ; Input
-                      [:input.input.spreadsheet-input.spreadsheet-input-textarea
+                      [:input.input.spreadsheet-input-textarea
                        {:key (str "spreadsheet-input-key-" id)
                         :id id
                         :class (when (and @is-editing active computed)
@@ -124,4 +112,18 @@
                         :default-value value
                         :on-blur handle-cell-change}])]]))
               a-to-z))])
-         numbers))]]]]])
+         numbers))]]]]
+   [:article.message.spreadsheet-info.is-info.mt-6
+    [:div.message-header.spreadsheet-info-header
+     "Operations and syntax"]
+    [:div.message-body
+     [:ul.bulleted.pl-3
+      [:li [:span "Supported operations: "
+            [:strong
+             "=sum, =sub, =mul, =div, =avg"]]]
+      [:li [:span "Pass formula arguments as a range: "
+            [:strong "=sum(b1:b5)"]]]
+      [:li [:span "Pass formula arguments as single cells: "
+            [:strong "=mul(c2, d5)"]]]
+      [:li [:span "Pass mixed formula arguments "
+            [:strong "=avg(c2:c5, e3)"]]]]]]])

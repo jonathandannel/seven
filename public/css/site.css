@@ -106,9 +106,11 @@ tr {
 .spreadsheet-input-base, .spreadsheet-input-display {
   border-radius: 0;
   border: none;
-  width: 120px;
+  width: 110px;
   padding: 0;
   margin: 0;
+  justify-content: center;
+  display: flex;
   text-align: center;
   box-shadow: none !important;
   outline: none !important;
@@ -158,4 +160,9 @@ tr {
   justify-content: center;
   text-align: center;
 }
+
+.spreadsheet-info {
+  font-size: 0.95rem;
+}
+
 
