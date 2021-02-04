@@ -1,8 +1,8 @@
 (ns seven.components.flight.util
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as cs]))
 
 (defn split-date [v]
-  (s/split v #"/"))
+  (cs/split v #"/"))
 
 (defn bad-chars? [v]
   (if (not (= (count v) 0))
