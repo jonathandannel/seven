@@ -1,24 +1,41 @@
-# 7GUIs: A GUI Programming Benchmark 
-This is my implementation of the (https://eugenkiss.github.io/7guis/)[7GUIs].
+### 7 GUIs: A GUI Programming Benchmark 
+This is my implementation of the [7 GUIs](https://eugenkiss.github.io/7guis/), written in Clojurescript and Reagent. 
 
-### Development mode
-To start the Figwheel compiler, navigate to the project folder and run the following command in the terminal:
+#### Visit the live demo
+https://seven.jonathandannel.com/.
 
-```
-lein figwheel
-```
+#### Run the project locally
+To start the Figwheel compiler and watch local changes, run `lein figwheel` in the project root.
 
-Figwheel will automatically push cljs changes to the browser.
-Once Figwheel starts up, you should be able to open the `public/index.html` page in the browser.
+Navigate to `localhost:3449` to view the running app in your browser.
 
-### REPL
+### GUI-specific notes
 
-The project is setup to start nREPL on port `7002` once Figwheel starts.
-Once you connect to the nREPL, run `(cljs)` to switch to the ClojureScript REPL.
+#### Flight booker
+- The error watcher will complain unless (and until) the date format is `dd/mm/yyyy`
 
-### Building for production
+#### Circle drawer
+- Right click a circle to edit its diameter
+- To undo, click the counterclockwise button icon
+- To redo, click the clockwise button icon
+- Clear the canvas with the trash icon
 
-```
-lein clean
-lein package
-```
+#### Spreadsheet
+A formula may contain one of the following 5 operations:
+   - Addition `=sum`
+   - Subtraction `=sub`
+   - Multiplication `=mul`
+   - Division `=div`
+   - Average `=avg`
+
+Args can be passed as either ranges, individual cell coordinates, or both:
+   - `=sum(b1:b4)`
+   - `=sum(b1, d8)`
+   - `=sum(b1:b4, d8)`
+
+Click a formula cell to change its formula, or click a plain value cell to change its value.
+
+### TODO
+ - Display flight booker errors more gracefully and in a less annoying way
+ - Spreadsheet: Display something better than `NaN` when attempting to operate on a string. This could mean changing the cell's `:computed` value directly or just rendering something else in the Reagent component
+ - Polish up the UI styles a bit, and make it more responsive on mobile
