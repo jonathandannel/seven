@@ -8,6 +8,9 @@
    :div #(apply / %)
    :avg #(/ (apply + %) (count %))})
 
+; TODO: Only apply operations on numbers. Skip if contains non-number values.
+; Right now we get NaN displaying if we try to add a number to a string.
+
 (defn is-function [v]
   (= (first v) "="))
 

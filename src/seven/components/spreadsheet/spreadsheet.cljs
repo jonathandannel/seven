@@ -49,65 +49,79 @@
   (when reset-active? (reset! active-cell-id nil)))
 
 (defn main []
-  [:div {:class "card"}
-   [:div {:class "card-header"}
-    [:div {:class "card-header-title"}
-     "Cells"]]
-   [:div.spreadsheet-container
-    [:table
-     [:thead
-      [:tr
-       [:th.spreadsheet-title-letter {:key "spacer"} ""]
+  [:<>
+   [:article.message.is-info
+    [:div.message-header "Usage and syntax"]
+    [:div.message-body
+     [:div.container.pl-3
+      [:ul.bulleted
+       [:li [:span "Supported operations: "
+             [:strong "=sum() =sub() =mul() =div() =avg()"]]]
+       [:li [:span "Pass formula arguments as a range "
+             [:strong "(b1:b5),"]
+             " as single cells " [:strong "(c2, d5),"]
+             " or a mix of both " [:strong "(c2:c5, e3)"]]]
+       [:li [:span "Ex: "
+             [:strong "=sum(d1, d2, e1:e5)"]]]]]]]
+   [:div {:class "card"}
+    [:div {:class "card-header"}
+     [:div {:class "card-header-title"}
+      "Cells"]]
+    [:div.spreadsheet-container
+     [:table
+      [:thead
+       [:tr
+        [:th.spreadsheet-title-letter {:key "spacer"} ""]
+        (doall
+         (map
+          (fn [letter]
+            [:th.spreadsheet-title-letter
+             {:key (str "title-" letter)
+              :class
+              (if (= letter (first @active-cell-id))
+                "spreadsheet-active-letter")}  letter])
+          a-to-z))]]
+      [:tbody
        (doall
         (map
-         (fn [letter]
-           [:th.spreadsheet-title-letter
-            {:key (str "title-" letter)
-             :class
-             (if (= letter (first @active-cell-id))
-               "spreadsheet-active-letter")}  letter])
-         a-to-z))]]
-     [:tbody
-      (doall
-       (map
-        (fn [number]
-          [:tr {:key (str "row-" "number-" number)}
-           [:th.spreadsheet-title-number
-            {:key (str "title-" number)
-             :class
-             (when
-              (and
-               @active-cell-id
-               (= number (int (last @active-cell-id))))
-               "spreadsheet-active-number")}
-            number]
-           (doall
-            (map
-             (fn [letter]
-               (let [id (str letter number)
-                     cell (get @cell-values (keyword id))
-                     value (get cell :value)
-                     computed (get cell :computed)
-                     active (= id @active-cell-id)]
-                 [:td {:key (str "cell-td-" id)}
-                  [:span.input.spreadsheet-input-base {:on-click #(edit-cell id)}
-                   (when (or (not @is-editing) (not active))
+         (fn [number]
+           [:tr {:key (str "row-" "number-" number)}
+            [:th.spreadsheet-title-number
+             {:key (str "title-" number)
+              :class
+              (when
+               (and
+                @active-cell-id
+                (= number (int (last @active-cell-id))))
+                "spreadsheet-active-number")}
+             number]
+            (doall
+             (map
+              (fn [letter]
+                (let [id (str letter number)
+                      cell (get @cell-values (keyword id))
+                      value (get cell :value)
+                      computed (get cell :computed)
+                      active (= id @active-cell-id)]
+                  [:td {:key (str "cell-td-" id)}
+                   [:span.input.spreadsheet-input-base {:on-click #(edit-cell id)}
+                    (when (or (not @is-editing) (not active))
                      ; Face value
-                     [:span.input.is-flex.is-justify-content-center.spreadsheet-input-display
-                      {:on-mouse-down #(reset! is-editing true)
-                       :class (when computed " computed-cell-val")}
-                      (or computed value)])
-                   (when (and @is-editing active)
+                      [:span.input.is-flex.is-justify-content-center.spreadsheet-input-display
+                       {:on-mouse-down #(reset! is-editing true)
+                        :class (when computed " computed-cell-val")}
+                       (or computed value)])
+                    (when (and @is-editing active)
                      ; Input
-                     [:input.input.spreadsheet-input.spreadsheet-input-textarea
-                      {:key (str "spreadsheet-input-key-" id)
-                       :id id
-                       :class (when (and @is-editing active computed)
-                                " formula-input-val")
-                       :on-key-down #(when (= (-> % .-key) "Enter")
-                                       (handle-cell-change % :reset))
-                       :auto-focus true
-                       :default-value value
-                       :on-blur handle-cell-change}])]]))
-             a-to-z))])
-        numbers))]]]])
+                      [:input.input.spreadsheet-input.spreadsheet-input-textarea
+                       {:key (str "spreadsheet-input-key-" id)
+                        :id id
+                        :class (when (and @is-editing active computed)
+                                 " formula-input-val")
+                        :on-key-down #(when (= (-> % .-key) "Enter")
+                                        (handle-cell-change % :reset))
+                        :auto-focus true
+                        :default-value value
+                        :on-blur handle-cell-change}])]]))
+              a-to-z))])
+         numbers))]]]]])

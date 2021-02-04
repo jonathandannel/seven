@@ -36,6 +36,10 @@ ul {
   list-style-type: none
 }
 
+.bulleted {
+  list-style-type: disc;
+}
+
 /*General*/
 td {
   padding: 0;
@@ -95,7 +99,7 @@ tr {
  /*Spreadsheet*/
 
 .spreadsheet-container {
-  max-height: 500px;
+  max-height: 550px;
   overflow: scroll;
 }
 
