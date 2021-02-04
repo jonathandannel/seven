@@ -14,3 +14,7 @@ pom.xml.asc
 /.repl
 *.log
 /.env
+.figwheel_server_log
+.rebel_readline_history
+Session.vim
+
